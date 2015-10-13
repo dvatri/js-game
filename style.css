@@ -1,0 +1,102 @@
+#gameField {
+    background: #eee;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    border: 5px solid black;
+}
+
+canvas {
+    position: absolute;
+}
+
+#items {
+    z-index: 2;
+}
+
+
+
+
+
+
+/* Editor */
+
+.wall {
+    background: black;
+}
+
+.hero {
+    background: green;
+}
+
+.coin {
+    background: yellow;
+}
+
+.enemy {
+    background: red;
+}
+
+.button {
+    padding: 10px;
+    background: #eee;
+    cursor: pointer;
+    text-align: center;
+}
+
+.active {
+    background: #eee;
+}
+
+#grid div {
+    z-index: 1;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+}
+
+#types div {
+    cursor: pointer;
+}
+
+.x-0 {left: 0;}
+.x-1 {left: 10px;}
+.x-2 {left: 20px;}
+.x-3 {left: 30px;}
+.x-4 {left: 40px;}
+.x-5 {left: 50px;}
+.x-6 {left: 60px;}
+.x-7 {left: 70px;}
+.x-8 {left: 80px;}
+.x-9 {left: 90px;}
+.x-10 {left: 100px;}
+.x-11 {left: 110px;}
+.x-12 {left: 120px;}
+.x-13 {left: 130px;}
+.x-14 {left: 140px;}
+.x-15 {left: 150px;}
+.x-16 {left: 160px;}
+.x-17 {left: 170px;}
+.x-18 {left: 180px;}
+.x-19 {left: 190px;}
+.x-20 {left: 200px;}
+.x-21 {left: 210px;}
+.x-22 {left: 220px;}
+.x-23 {left: 230px;}
+
+.y-0 {top: 0;}
+.y-1 {top: 10px;}
+.y-2 {top: 20px;}
+.y-3 {top: 30px;}
+.y-4 {top: 40px;}
+.y-5 {top: 50px;}
+.y-6 {top: 60px;}
+.y-7 {top: 70px;}
+.y-8 {top: 80px;}
+.y-9 {top: 90px;}
+.y-10 {top: 100px;}
+.y-11 {top: 110px;}
+.y-12 {top: 120px;}
+.y-13 {top: 130px;}
+.y-14 {top: 140px;}
+.y-15 {top: 150px;}
