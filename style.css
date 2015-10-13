@@ -1,9 +1,9 @@
 #gameField {
-    background: #eee;
+    background: lightblue;
     margin: 0 auto;
     display: block;
     position: relative;
-    border: 5px solid black;
+    border: 5px solid darkgray;
 }
 
 canvas {

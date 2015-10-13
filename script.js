@@ -67,18 +67,40 @@ var GAME = GAME || {
         }
 
         // Init coins
-        for (var i=0; i < this.coinsMap.length; i++) {
-            this.staticObjects.push(new Coin(this.coinsMap[i], i));
-        }
+        var coinsImg = new Image();
+        coinsImg.src = 'img/coins.png';
+        coinsImg.onload = function () {
+            var variants = Math.floor(coinsImg.width / GAME.cellSize);
+            
+            for (var i=0; i < GAME.coinsMap.length; i++) {
+                var coin = new Coin(GAME.coinsMap[i], i);
+                coin.img.source = coinsImg;
+                coin.img.current = Math.floor(Math.random() * variants);
+                GAME.staticObjects.push(coin);
+            }
+            
+            GAME.renderStatic();
+        };
 
         // Init hero
         this.hero = new Hero(this.heroMap[0], 0);
         this.objects.push(this.hero);
+        var heroImg = new Image();
+        heroImg.onload = function () {
+            GAME.hero.img.source = heroImg;
+        };
+        heroImg.src = 'img/hero.png';
 
         // Init enemies
-        for (var i=0; i < this.enemiesMap.length; i++) {
-            this.objects.push(new Enemy(this.enemiesMap[i], i));
-        }
+        var enemyImg = new Image();
+        enemyImg.src = 'img/enemy.png';
+        enemyImg.onload = function () {
+            for (var i=0; i < GAME.enemiesMap.length; i++) {
+                var enemy = new Enemy(GAME.enemiesMap[i], i);
+                enemy.img.source = enemyImg;
+                GAME.objects.push(enemy);
+            }
+        };
         
         this.renderStatic();
     },
@@ -149,6 +171,60 @@ var GAME = GAME || {
         
         if (this.timeLeft === 0)
             this.stop("Time is up!", "orange");
+    },
+    
+    renderImage: function(image, x, y, direction, item) {
+        if (image.source === null)
+            return;
+        
+        if (GAME.t % (GAME.frameInterval * 5) === 0 && (item.vx !== 0  || item.vy !== 0))
+            image.current = (image.current === 0) ? 1 : 0;
+                
+        var sx = 0;
+        var sy = image.current * GAME.cellSize;
+        
+        switch (direction) {
+            case "down" :
+                sx = 30;
+                break;
+                
+            case "left" :
+                sx = 60;
+                break;
+                
+            case "right" :
+                sx = 90;
+                break;
+        }
+        
+        GAME.context.drawImage(
+            image.source,
+            sx,
+            sy,
+            GAME.cellSize,
+            GAME.cellSize,
+            x,
+            y,
+            GAME.cellSize,
+            GAME.cellSize
+        );
+    },
+    
+    renderRandomImage: function(image, x, y, context) {
+        
+        var sx = image.current * GAME.cellSize;
+        
+        context.drawImage(
+            image.source,
+            sx,
+            0,
+            GAME.cellSize,
+            GAME.cellSize,
+            x,
+            y,
+            GAME.cellSize,
+            GAME.cellSize
+        );
     }
 
 };
@@ -345,6 +421,10 @@ var Enemy = createClass({
         Item.call(this, cell); // Parent constructor call
         this.type = 'enemy';
         this.step = GAME.enemySpeed;
+        this.img = {
+            'source': null,
+            'current': 0
+        };
         this.moveQueue = [];
         this.planMovement(); // Generate first random movement
         this.move();
@@ -354,8 +434,7 @@ var Enemy = createClass({
         this.move();
         this.animate();
         
-        GAME.context.fillStyle = 'red';
-        GAME.context.fillRect(this.x, this.y, GAME.cellSize, GAME.cellSize);
+        GAME.renderImage(this.img, this.x, this.y, this.direction, this);
 
     },
 
@@ -393,6 +472,8 @@ var Enemy = createClass({
                     this.vx = movement.distance;
                     break;
             }
+            
+            this.direction = movement.direction;
         }
 
         this.planMovement();
@@ -413,6 +494,10 @@ var Hero = createClass({
         //this.stepEndEvents.push(function(){GAME.hero.fixPosition();});
         this.type = 'hero';
         this.pressedKeys = {38: false, 40: false, 37: false, 39: false};
+        this.img = {
+            'source': null,
+            'current': 0
+        };
     },
     
     keyDown: function(key) {
@@ -458,37 +543,8 @@ var Hero = createClass({
     draw: function() {
         this.manipulate();
         this.animate();
-    
-        ////// Useless gradient generation
-            var x0 = this.x;
-            var y0 = this.y + GAME.cellSize;
-            var x1 = this.x;
-            var y1 = this.y;
-
-            switch (this.direction) {
-                case 'down' :
-                    y0 -= GAME.cellSize;
-                    y1 += GAME.cellSize;
-                    break;
-
-                case 'left' :
-                    x0 += GAME.cellSize;
-                    y0 -= GAME.cellSize;
-                    break;
-
-                case 'right' :
-                    y0 -= GAME.cellSize;
-                    x1 += GAME.cellSize;
-                    break;
-            }
-
-            var gradient = GAME.context.createLinearGradient(x0, y0, x1, y1);
-            gradient.addColorStop(0,"green");
-            gradient.addColorStop(1,"white");
-
-            GAME.context.fillStyle=gradient;
-            GAME.context.fillRect(this.x, this.y, GAME.cellSize, GAME.cellSize);
-        //////
+        
+        GAME.renderImage(this.img, this.x, this.y, this.direction, this);
     }
 });
 
@@ -505,7 +561,7 @@ function Wall(cell) {
     this.type = 'wall';
 
     this.draw = function() {
-        GAME.staticContext.fillStyle='black';
+        GAME.staticContext.fillStyle='darkgray';
         GAME.staticContext.fillRect(this.x, this.y, GAME.cellSize, GAME.cellSize);
     };
 }
@@ -519,10 +575,13 @@ function Coin(cell, id) {
     this.canMove = true;
     this.type = 'coin';
     this.deleted = false; // If true - instance will be deleted on next loop
+    this.img = {
+            'source': null,
+            'current': 0
+        };
 
     this.draw = function() {
-        GAME.staticContext.fillStyle='yellow';
-        GAME.staticContext.fillRect(this.x, this.y, GAME.cellSize, GAME.cellSize);
+        GAME.renderRandomImage(this.img, this.x, this.y, GAME.staticContext);
     };
 
     this.collect = function() {
