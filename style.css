@@ -1,9 +1,14 @@
+body {
+    background: black;
+    color: darkslategrey;
+}
+
 #gameField {
     background: lightblue;
     margin: 0 auto;
     display: block;
     position: relative;
-    border: 5px solid darkgray;
+    border: 5px solid black;
 }
 
 canvas {
@@ -12,4 +17,8 @@ canvas {
 
 #items {
     z-index: 2;
+}
+
+#foreground {
+    z-index: 3;
 }

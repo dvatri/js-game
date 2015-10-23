@@ -11,6 +11,7 @@
 
         <?php if (!empty($_POST['data'])) : ?>
             <div id="gameField">
+                <canvas id="foreground"></canvas>
                 <canvas id="items"></canvas>
                 <canvas id="background"></canvas>
             </div>

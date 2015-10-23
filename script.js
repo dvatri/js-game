@@ -11,6 +11,8 @@ var GAME = GAME || {
     context: null,
     staticCanvas: null,
     staticContext: null,
+    frontCanvas: null,
+    frontContext: null,
     cellSize: 30, // Cell size in pixels
     animationSpeed: 6, // 1..cellSize, default 3
     enemySpeed: 3,
@@ -25,6 +27,7 @@ var GAME = GAME || {
     randomMovementQueue: 2, // Movement queue size
     timeLeft: 30, // Time limit in seconds
     imgPath: 'img/',
+    darkness: true, // Should we use gradient foreground layer
 
     heroMap: [{"x":14,"y":6}],
     enemiesMap: [{"x":16,"y":1},{"x":1,"y":14},{"x":9,"y":12},{"x":16,"y":12},{"x":22,"y":10},{"x":6,"y":0},{"x":1,"y":5}],
@@ -61,6 +64,11 @@ var GAME = GAME || {
         this.canvas.width = this.cellsX * this.cellSize;
         this.canvas.height = this.cellsY * this.cellSize;
         this.context = this.canvas.getContext("2d");
+        
+        this.frontCanvas = document.getElementById("foreground");
+        this.frontCanvas.width = this.cellsX * this.cellSize;
+        this.frontCanvas.height = this.cellsY * this.cellSize;
+        this.frontContext = this.frontCanvas.getContext("2d");
 
         this.initStageObjects();
 
@@ -115,27 +123,31 @@ var GAME = GAME || {
 
     updateStage: function () {
         GAME.t += GAME.frameInterval;
-        GAME.updateTime();
         GAME.clearCanvas();
+        GAME.updateTime();
         GAME.updateStageObjects();
         GAME.drawInfo();
     },
 
     drawInfo: function() {
-        this.context.font="40px Impact";
-        this.context.fillStyle="green";
-        this.context.fillText(this.score, this.canvas.width-50, this.canvas.height-20, 50);
+        this.frontContext.font="40px Impact";
+        this.frontContext.fillStyle="lawngreen";
+        this.frontContext.fillText(this.score, this.canvas.width-50, this.canvas.height-20, 50);
         
-        this.context.fillStyle="orange";
-        this.context.fillText(this.timeLeft, this.canvas.width-120, this.canvas.height-20, 50);
+        this.frontContext.fillStyle="orange";
+        this.frontContext.fillText(this.timeLeft, this.canvas.width-120, this.canvas.height-20, 50);
     },
     
     stop: function(text, color) {
+        
         this.objects = [];
         this.staticObjects = [];
-        this.staticContext.font = "40px Impact";
-        this.staticContext.fillStyle = color;
-        this.staticContext.fillText(text, this.canvas.width-420, this.canvas.height-250);
+        this.darkness = false;
+        this.frontContext.fillStyle=color;
+        this.frontContext.fillRect(0, 0, GAME.cellSize*GAME.cellsX, GAME.cellSize*GAME.cellsY);
+        this.frontContext.font = "40px Impact";
+        this.frontContext.fillStyle = 'white';
+        this.frontContext.fillText(text, this.canvas.width-440, this.canvas.height-250);
         
         clearInterval(this.loop);
     },
@@ -162,6 +174,7 @@ var GAME = GAME || {
 
     clearCanvas: function () {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.frontContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
     },
     
     findDistance: function(i1, i2) {
@@ -170,7 +183,7 @@ var GAME = GAME || {
     
     checkScore: function() {
         if (this.score === this.coinsMap.length)
-            this.stop("Won!", "green");
+            this.stop("Все собрано!", "green");
     },
     
     updateTime: function() {
@@ -178,7 +191,7 @@ var GAME = GAME || {
             this.timeLeft--;
         
         if (this.timeLeft === 0)
-            this.stop("Time is up!", "orange");
+            this.stop("Кончилось время!", "orange");
     },
     
     renderImage: function(image, x, y, direction, item) {
@@ -277,7 +290,7 @@ var Item = createClass({
                             break;
 
                         case "enemy" :
-                            GAME.stop("Busted!", "red");
+                            GAME.stop("Поймали!", "red");
                             return;
                             break
 
@@ -288,7 +301,7 @@ var Item = createClass({
                 } else if (this.type === "enemy") {
                     switch(GAME.allObjects[i].type) {                     
                         case "hero" :
-                            GAME.stop("Busted!", "red");
+                            GAME.stop("Поймали!", "red");
                             return;
                             break
 
@@ -553,6 +566,17 @@ var Hero = createClass({
         this.animate();
         
         GAME.renderImage(this.img, this.x, this.y, this.direction, this);
+        
+        if (GAME.darkness) {
+            var grd = GAME
+                    .frontContext
+                    .createRadialGradient(this.x, this.y, GAME.cellSize*GAME.cellsX, this.x, this.y, 100);
+            grd.addColorStop(0, 'black');
+            grd.addColorStop(.8, 'black');
+            grd.addColorStop(1, 'rgba(255,255,0,.01)');
+            GAME.frontContext.fillStyle = grd;
+            GAME.frontContext.fillRect(0,0,GAME.canvas.width,GAME.canvas.height);
+        }
     }
 });
 
