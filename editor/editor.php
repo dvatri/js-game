@@ -18,6 +18,7 @@
                 $(document).ready(function(){
                     $("#data").val('<?php echo $_POST['data'] ?>');
                     GAME.imgPath = '../img/';
+                    GAME.timeLeft = 999;
                     GAME.init(JSON.parse('<?php echo $_POST['data'] ?>'));
                 });
             </script>
