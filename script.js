@@ -1,5 +1,6 @@
 // http://www.w3schools.com/tags/ref_canvas.asp
 // http://www.sitepoint.com/html5-canvas-animation/
+// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
 
 var GAME = GAME || {
 
@@ -23,6 +24,7 @@ var GAME = GAME || {
     randomMovementDistance: 6, // Max number of cells to move randomly
     randomMovementQueue: 2, // Movement queue size
     timeLeft: 30, // Time limit in seconds
+    imgPath: 'img/',
 
     heroMap: [{"x":14,"y":6}],
     enemiesMap: [{"x":16,"y":1},{"x":1,"y":14},{"x":9,"y":12},{"x":16,"y":12},{"x":22,"y":10},{"x":6,"y":0},{"x":1,"y":5}],
@@ -32,7 +34,13 @@ var GAME = GAME || {
     directions: ['left', 'right', 'up', 'down'],
 
 
-    init: function () {
+    init: function (data) {
+        if (typeof(data) === 'object') {
+            for (var p in data) {  
+                this[p] = data[p];
+            }
+        }
+        
         window.onkeydown = function(e){
             return GAME.hero.keyDown(e.keyCode);
         };
@@ -68,7 +76,7 @@ var GAME = GAME || {
 
         // Init coins
         var coinsImg = new Image();
-        coinsImg.src = 'img/coins.png';
+        coinsImg.src = this.imgPath + 'coins.png';
         coinsImg.onload = function () {
             var variants = Math.floor(coinsImg.width / GAME.cellSize);
             
@@ -89,11 +97,11 @@ var GAME = GAME || {
         heroImg.onload = function () {
             GAME.hero.img.source = heroImg;
         };
-        heroImg.src = 'img/hero.png';
+        heroImg.src = this.imgPath + 'hero.png';
 
         // Init enemies
         var enemyImg = new Image();
-        enemyImg.src = 'img/enemy.png';
+        enemyImg.src = this.imgPath + 'enemy.png';
         enemyImg.onload = function () {
             for (var i=0; i < GAME.enemiesMap.length; i++) {
                 var enemy = new Enemy(GAME.enemiesMap[i], i);
@@ -596,73 +604,6 @@ function Coin(cell, id) {
         GAME.checkScore();
     };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Levels editor. Generates items jsons
-var EDITOR = EDITOR || {
-
-    type: "wall",
-
-    seedHero: function() {
-        this.add(grid, "hero", GAME.heroMap[0].x, GAME.heroMap[0].y);
-    },
-
-    seedWalls: function() {
-        for (var i=0; i < GAME.wallsMap.length; i++) {
-            this.add(grid, "wall", GAME.wallsMap[i].x, GAME.wallsMap[i].y);
-        }
-    },
-
-    seedCoins: function() {
-        for (var i=0; i < GAME.coinsMap.length; i++) {
-            this.add(grid, "coin", GAME.coinsMap[i].x, GAME.coinsMap[i].y);
-        }
-    },
-    
-    seedEnemies: function() {
-        for (var i=0; i < GAME.enemiesMap.length; i++) {
-            this.add(grid, "enemy", GAME.enemiesMap[i].x, GAME.enemiesMap[i].y);
-        }
-    },
-
-    add: function(to, type, x, y) {
-        var cellClass = 'x-'+x+' y-'+y+' '+type;
-
-        to.append('<div class="'+cellClass+'" data-x="'+x+'" data-y="'+y+'"></div>');
-    },
-
-    getMap: function(from) {
-        var map = [];
-        from.find("."+this.type).each(function(){
-            map.push({x: $(this).data("x"), y: $(this).data("y")});
-        });
-
-        console.log(JSON.stringify(map));
-    }
-}
-
-
-
-
 
 
 

@@ -1,0 +1,2 @@
+Options All -ExecCGI -Indexes -Includes +FollowSymLinks
+DirectoryIndex editor.php

@@ -1,0 +1,119 @@
+#result {
+    margin: 30px auto;
+    font-size: .8em;
+    max-width: 1200px;
+    min-width: 700px;
+}
+
+#grid {
+    width: 100%;
+    margin: 25px auto;
+    position: relative;
+    background: #eee;
+    border: 5px solid #000;
+}
+
+#types {
+    z-index: 3;
+    float: left;
+    width: 20%;
+    padding: 20px;
+    background: #eee;
+    margin: 25px 0;
+}
+
+.walls {
+    background: black;
+}
+
+.hero {
+    background: green;
+}
+
+.coins {
+    background: yellow;
+}
+
+.enemies {
+    background: red;
+}
+
+.button {
+    padding: 10px;
+    background: #eee;
+    cursor: pointer;
+    text-align: center;
+    margin: 25px auto;
+    width: 80%;
+    max-width: 700px;
+    min-width: 200px;
+}
+
+form {
+    width: 80%;
+    max-width: 1000px;
+    min-width: 700px;
+    margin: 10px auto;
+}
+
+.active {
+    background: #ddd;
+}
+
+.clear {
+    margin: 50px 0 0;
+}
+
+#grid div {
+    z-index: 1;
+    position: absolute;
+    width: 4.18%;
+    height: 6.26%;
+}
+
+#types div {
+    cursor: pointer;
+    padding: 5px
+}
+
+.x-0 {left: 0%;}
+.x-1 {left: 4.17%;}
+.x-2 {left: 8.33%;}
+.x-3 {left: 12.5%;}
+.x-4 {left: 16.67%;}
+.x-5 {left: 20.83%;}
+.x-6 {left: 25%;}
+.x-7 {left: 29.17%;}
+.x-8 {left: 33.33%;}
+.x-9 {left: 37.5%;}
+.x-10 {left: 41.67%;}
+.x-11 {left: 45.83%;}
+.x-12 {left: 50%;}
+.x-13 {left: 54.17%;}
+.x-14 {left: 58.33%;}
+.x-15 {left: 62.5%;}
+.x-16 {left: 66.67%;}
+.x-17 {left: 70.83%;}
+.x-18 {left: 75%;}
+.x-19 {left: 79.17%;}
+.x-20 {left: 83.33%;}
+.x-21 {left: 87.5%;}
+.x-22 {left: 91.67%;}
+.x-23 {left: 95.83%;}
+
+.y-0 {top: 0%;}
+.y-1 {top: 6.25%;}
+.y-2 {top: 12.5%;}
+.y-3 {top: 18.75%;}
+.y-4 {top: 25%;}
+.y-5 {top: 31.25%;}
+.y-6 {top: 37.5%;}
+.y-7 {top: 43.75%;}
+.y-8 {top: 50%;}
+.y-9 {top: 56.25%;}
+.y-10 {top: 62.5%;}
+.y-11 {top: 68.75%;}
+.y-12 {top: 75%;}
+.y-13 {top: 81.25%;}
+.y-14 {top: 87.5%;}
+.y-15 {top: 93.75%;}
