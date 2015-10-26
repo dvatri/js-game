@@ -4,7 +4,7 @@ body {
 }
 
 #gameField {
-    background: lightblue;
+    background: #400;
     margin: 0 auto;
     display: block;
     position: relative;

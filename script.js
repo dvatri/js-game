@@ -81,6 +81,9 @@ var GAME = GAME || {
         for (var i=0; i < this.wallsMap.length; i++) {
             this.staticObjects.push(new Wall(this.wallsMap[i]));
         }
+        
+        if (this.darkness)
+            this.wallColor = 'black';
 
         // Init coins
         var coinsImg = new Image();
@@ -246,6 +249,91 @@ var GAME = GAME || {
             GAME.cellSize,
             GAME.cellSize
         );
+    },
+    
+    drawShadows: function() {
+        var hx = GAME.hero.x + GAME.cellSize / 2;
+        var hy = GAME.hero.y + GAME.cellSize / 2;
+        
+        for (var i=0; i < this.staticObjects.length; i++) {
+            
+            var wall = this.staticObjects[i];
+            
+            if (wall.type !== 'wall')
+                continue;
+            
+            var ctx = GAME.frontContext;
+            
+            var x0=0;
+            var y0=0;
+            var x1=0;
+            var y1=0;
+            var x2=0;
+            var y2=0;
+            var x3=0;
+            var y3=0;
+            
+            ctx.beginPath();
+            
+            // Тень пошла вниз
+            if (hy < wall.y) {
+                x0 = wall.x;
+                x1 = wall.x + GAME.cellSize;
+                y2 = y3 = GAME.cellsY * GAME.cellSize;
+            } else {
+                x0 = wall.x + GAME.cellSize;
+                x1 = wall.x;
+            }
+            
+            // Тень пошла направо
+            if (hx < wall.x) {
+                y0 = wall.y + GAME.cellSize;
+                y1 = wall.y;
+                x2 = x3 = GAME.cellsX * GAME.cellSize;
+            } else {
+                y0 = wall.y;
+                y1 = wall.y + GAME.cellSize;
+            }
+            
+            // Фиксим ситуацию с точками по позные стороны от героя
+            if (wall.x < hx && hx < (wall.x+GAME.cellSize)) {
+                x2 = 0;
+                x3 = GAME.cellsX * GAME.cellSize;
+            }
+            
+            if ((hy-GAME.cellSize / 2) >= (wall.y+GAME.cellSize)) {
+                x2 = (y2 * (hx - x0) - hx*y0 + hy*x0) / (hy - y0);
+                x3 = (y3 * (hx - x1) - hx*y1 + hy*x1) / (hy - y1);
+            } else {
+                y2 = (x2 * (hy - y0) - hy*x0 + hx*y0) / (hx - x0);
+                y3 = (x3 * (hy - y1) - hy*x1 + hx*y1) / (hx - x1);
+            }
+            
+//            function Factor(numb){
+//		if (numb < 0){
+//			return (" - "+Math.abs(numb));
+//		}
+//		return (" + "+numb);
+//            }
+//            
+//            var A2 = hy - y0;
+//            var B2 = x0 - hx;
+//            var C2 = hx*y0 - x0*hy;
+//            var s = A2+" x"+Factor(B2)+" y"+Factor(C2)+" = 0";
+            
+            
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x0, y0);
+            ctx.lineTo(x1, y1);
+            ctx.lineTo(x3, y3);
+            ctx.closePath();
+            ctx.lineWidth="1";
+            ctx.strokeStyle="black"; // Fix thin lines beetwen areas
+            ctx.stroke();
+            ctx.fillStyle="black";
+            
+            ctx.fill();
+        }
     }
 
 };
@@ -568,12 +656,13 @@ var Hero = createClass({
         GAME.renderImage(this.img, this.x, this.y, this.direction, this);
         
         if (GAME.darkness) {
+            GAME.drawShadows();
             var grd = GAME
                     .frontContext
                     .createRadialGradient(this.x, this.y, GAME.cellSize*GAME.cellsX, this.x, this.y, 100);
             grd.addColorStop(0, 'black');
             grd.addColorStop(.8, 'black');
-            grd.addColorStop(1, 'rgba(255,255,0,.01)');
+            grd.addColorStop(1, 'rgba(0,0,0,.01)');
             GAME.frontContext.fillStyle = grd;
             GAME.frontContext.fillRect(0,0,GAME.canvas.width,GAME.canvas.height);
         }
