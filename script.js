@@ -27,8 +27,10 @@ var GAME = GAME || {
     randomMovementQueue: 2, // Movement queue size
     timeLeft: 30, // Time limit in seconds
     imgPath: 'img/',
-    darkness: true, // Should we use gradient foreground layer
+    darkness: false, // Should we use gradient foreground layer
     wallColor: 'darkgray',
+    wallFile: 'wall.png',
+    bgFile: 'floor.png',
     hudColor: '#500',
     hudHeight: 3, // Height bottom HUD area in cells
 
@@ -78,10 +80,22 @@ var GAME = GAME || {
     },
 
     initStageObjects: function () {
-
+        
         // Init walls
-        for (var i=0; i < this.wallsMap.length; i++) {
-            this.staticObjects.push(new Wall(this.wallsMap[i]));
+        if (this.wallFile) {
+            var wallImg = new Image();
+            wallImg.src = this.imgPath + this.wallFile;
+            wallImg.onload = function () {
+                for (var i=0; i < GAME.wallsMap.length; i++) {
+                    var wall = new Wall(GAME.wallsMap[i]);
+                    wall.img.source = wallImg;
+                    GAME.staticObjects.push(wall);
+                }
+            };
+        } else {
+            for (var i=0; i < this.wallsMap.length; i++) {
+                this.staticObjects.push(new Wall(this.wallsMap[i]));
+            }
         }
         
         if (this.darkness)
@@ -696,10 +710,18 @@ function Wall(cell) {
     this.y = cell.y * GAME.cellSize;
     this.canMove = false;
     this.type = 'wall';
+    this.img = {
+            'source': null,
+            'current': 0
+        };
 
     this.draw = function() {
-        GAME.staticContext.fillStyle=GAME.wallColor;
-        GAME.staticContext.fillRect(this.x, this.y, GAME.cellSize, GAME.cellSize);
+        if (GAME.wallFile) {
+            GAME.renderRandomImage(this.img, this.x, this.y, GAME.staticContext);
+        } else {    
+            GAME.staticContext.fillStyle=GAME.wallColor;
+            GAME.staticContext.fillRect(this.x, this.y, GAME.cellSize, GAME.cellSize);
+        }
     };
 }
 
