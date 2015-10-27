@@ -58,6 +58,7 @@ var GAME = GAME || {
         var field = document.getElementById("gameField");
         field.style.width = this.cellsX * this.cellSize + "px";
         field.style.height = (this.cellsY + this.hudHeight) * this.cellSize + "px";
+        // Set background image
         
         this.staticCanvas = document.getElementById("background");
         this.staticCanvas.width = this.cellsX * this.cellSize;
