@@ -399,7 +399,7 @@ var GAME = GAME || {
     getMap: function(handleData) {
         $.ajax({
             type: "POST",
-            url: "api",
+            url: "api.php",
             data: {level: GAME.level},
             success: function(data){
                 handleData(JSON.parse(data));
