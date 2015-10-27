@@ -6,7 +6,7 @@ var GAME = GAME || {
 
     // Settings
     t: 0,
-    frameInterval: 40, // Default 25
+    frameInterval: 40, // Default 40
     canvas: null,
     context: null,
     staticCanvas: null,
@@ -14,8 +14,8 @@ var GAME = GAME || {
     frontCanvas: null,
     frontContext: null,
     cellSize: 30, // Cell size in pixels
-    animationSpeed: 6, // 1..cellSize, default 3
-    enemySpeed: 3,
+    animationSpeed: 6, // 1..cellSize, default 6
+    enemySpeed: 3, // default 3
     hero: null, // Movable item
     cellsX: 24, // Number of horizontal cells
     cellsY: 16, // Number of vertical cells
@@ -29,23 +29,35 @@ var GAME = GAME || {
     imgPath: 'img/',
     darkness: false, // Should we use gradient foreground layer
     shadowColor: '#333',
-    wallColor: 'darkgray',
+    wallColor: '#555',
     wallFile: 'wall.png',
     bgFile: 'floor.png',
     hudColor: '#500',
     hudHeight: 3, // Height bottom HUD area in cells
-
-    heroMap: [{"x":14,"y":6}],
-    enemiesMap: [{"x":16,"y":1},{"x":1,"y":14},{"x":9,"y":12},{"x":16,"y":12},{"x":22,"y":10},{"x":6,"y":0},{"x":1,"y":5}],
-    coinsMap: [{"x":4,"y":1},{"x":9,"y":0},{"x":0,"y":11},{"x":4,"y":14},{"x":7,"y":10},{"x":11,"y":15},{"x":14,"y":14},{"x":12,"y":1},{"x":20,"y":14},{"x":22,"y":13},{"x":20,"y":12},{"x":23,"y":0}],
-    wallsMap: [{"x":3,"y":0},{"x":3,"y":1},{"x":3,"y":2},{"x":3,"y":3},{"x":4,"y":3},{"x":5,"y":3},{"x":8,"y":3},{"x":9,"y":3},{"x":10,"y":2},{"x":10,"y":1},{"x":10,"y":0},{"x":0,"y":9},{"x":1,"y":9},{"x":4,"y":9},{"x":5,"y":9},{"x":6,"y":15},{"x":6,"y":14},{"x":6,"y":10},{"x":6,"y":9},{"x":6,"y":11},{"x":7,"y":9},{"x":8,"y":9},{"x":10,"y":9},{"x":9,"y":9},{"x":11,"y":9},{"x":12,"y":9},{"x":12,"y":10},{"x":12,"y":12},{"x":12,"y":11},{"x":12,"y":13},{"x":12,"y":15},{"x":12,"y":14},{"x":10,"y":4},{"x":10,"y":3},{"x":10,"y":7},{"x":10,"y":8},{"x":11,"y":3},{"x":12,"y":3},{"x":15,"y":3},{"x":16,"y":3},{"x":17,"y":3},{"x":18,"y":3},{"x":18,"y":4},{"x":19,"y":3},{"x":22,"y":3},{"x":23,"y":3},{"x":18,"y":7},{"x":18,"y":8},{"x":13,"y":9},{"x":17,"y":9},{"x":18,"y":9},{"x":14,"y":9},{"x":18,"y":10},{"x":18,"y":11},{"x":18,"y":13},{"x":18,"y":12},{"x":18,"y":14},{"x":18,"y":15}],
     directions: ['left', 'right', 'up', 'down'],
+    map: null,
 
+    heroMap: [{"x":1,"y":1}],
+    enemiesMap: [],
+    coinsMap: [],
+    wallsMap: [],
 
     init: function (data) {
         if (typeof(data) === 'object') {
             for (var p in data) {  
                 this[p] = data[p];
+            }
+        }
+        
+        if (this.map === null || typeof this.map !== "object")
+            this.map = this.getMap();
+        
+        if (this.map === null || typeof this.map !== "object")
+            return;
+        
+        for (var property in this.map) {
+            if (this.map.hasOwnProperty(property) && this.hasOwnProperty(property)) {
+                this[property] = this.map[property];
             }
         }
         
@@ -370,6 +382,16 @@ var GAME = GAME || {
             
             ctx.fill();
         }
+    },
+    
+    getMap: function() {
+        return {
+                timeLeft: 45,
+                heroMap: [{"x":14,"y":6}],
+                enemiesMap: [{"x":16,"y":1},{"x":1,"y":14},{"x":9,"y":12},{"x":16,"y":12},{"x":22,"y":10},{"x":6,"y":0},{"x":1,"y":5}],
+                coinsMap: [{"x":4,"y":1},{"x":9,"y":0},{"x":0,"y":11},{"x":4,"y":14},{"x":7,"y":10},{"x":11,"y":15},{"x":14,"y":14},{"x":12,"y":1},{"x":20,"y":14},{"x":22,"y":13},{"x":20,"y":12},{"x":23,"y":0}],
+                wallsMap: [{"x":3,"y":0},{"x":3,"y":1},{"x":3,"y":2},{"x":3,"y":3},{"x":4,"y":3},{"x":5,"y":3},{"x":8,"y":3},{"x":9,"y":3},{"x":10,"y":2},{"x":10,"y":1},{"x":10,"y":0},{"x":0,"y":9},{"x":1,"y":9},{"x":4,"y":9},{"x":5,"y":9},{"x":6,"y":15},{"x":6,"y":14},{"x":6,"y":10},{"x":6,"y":9},{"x":6,"y":11},{"x":7,"y":9},{"x":8,"y":9},{"x":10,"y":9},{"x":9,"y":9},{"x":11,"y":9},{"x":12,"y":9},{"x":12,"y":10},{"x":12,"y":12},{"x":12,"y":11},{"x":12,"y":13},{"x":12,"y":15},{"x":12,"y":14},{"x":10,"y":4},{"x":10,"y":3},{"x":10,"y":7},{"x":10,"y":8},{"x":11,"y":3},{"x":12,"y":3},{"x":15,"y":3},{"x":16,"y":3},{"x":17,"y":3},{"x":18,"y":3},{"x":18,"y":4},{"x":19,"y":3},{"x":22,"y":3},{"x":23,"y":3},{"x":18,"y":7},{"x":18,"y":8},{"x":13,"y":9},{"x":17,"y":9},{"x":18,"y":9},{"x":14,"y":9},{"x":18,"y":10},{"x":18,"y":11},{"x":18,"y":13},{"x":18,"y":12},{"x":18,"y":14},{"x":18,"y":15}],
+        };
     }
 
 };
