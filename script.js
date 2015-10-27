@@ -29,6 +29,8 @@ var GAME = GAME || {
     imgPath: 'img/',
     darkness: true, // Should we use gradient foreground layer
     wallColor: 'darkgray',
+    hudColor: '#500',
+    hudHeight: 3, // Height bottom HUD area in cells
 
     heroMap: [{"x":14,"y":6}],
     enemiesMap: [{"x":16,"y":1},{"x":1,"y":14},{"x":9,"y":12},{"x":16,"y":12},{"x":22,"y":10},{"x":6,"y":0},{"x":1,"y":5}],
@@ -53,7 +55,7 @@ var GAME = GAME || {
         
         var field = document.getElementById("gameField");
         field.style.width = this.cellsX * this.cellSize + "px";
-        field.style.height = this.cellsY * this.cellSize + "px";
+        field.style.height = (this.cellsY + this.hudHeight) * this.cellSize + "px";
         
         this.staticCanvas = document.getElementById("background");
         this.staticCanvas.width = this.cellsX * this.cellSize;
@@ -67,7 +69,7 @@ var GAME = GAME || {
         
         this.frontCanvas = document.getElementById("foreground");
         this.frontCanvas.width = this.cellsX * this.cellSize;
-        this.frontCanvas.height = this.cellsY * this.cellSize;
+        this.frontCanvas.height = (this.cellsY + this.hudHeight)* this.cellSize;
         this.frontContext = this.frontCanvas.getContext("2d");
 
         this.initStageObjects();
@@ -133,12 +135,26 @@ var GAME = GAME || {
     },
 
     drawInfo: function() {
-        this.frontContext.font="40px Impact";
+        
+        var hudY = this.frontCanvas.height - this.hudHeight*GAME.cellSize;
+        
+        this.frontContext.fillStyle=this.hudColor;
+        this.frontContext.fillRect(0, hudY, this.frontCanvas.width, this.frontCanvas.height);
+        
+        this.frontContext.font="30px Impact";
         this.frontContext.fillStyle="lawngreen";
-        this.frontContext.fillText(this.score, this.canvas.width-50, this.canvas.height-20, 50);
+        this.frontContext.fillText(
+                'Собрано: ' + this.score,
+                this.canvas.width - 210,
+                this.frontCanvas.height - 32,
+                200); // Max width
         
         this.frontContext.fillStyle="orange";
-        this.frontContext.fillText(this.timeLeft, this.canvas.width-120, this.canvas.height-20, 50);
+        this.frontContext.fillText(
+                this.timeLeft + ' сек.',
+                50,
+                this.frontCanvas.height - 32,
+                200);
     },
     
     stop: function(text, color) {
@@ -177,7 +193,7 @@ var GAME = GAME || {
 
     clearCanvas: function () {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.frontContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.frontContext.clearRect(0, 0, this.frontCanvas.width, this.frontCanvas.height);
     },
     
     findDistance: function(i1, i2) {
