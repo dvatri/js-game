@@ -23,6 +23,7 @@ var GAME = GAME || {
     staticObjects: [],
     allObjects: [],
     score: 0,
+    level: 1,
     randomMovementDistance: 6, // Max number of cells to move randomly
     randomMovementQueue: 2, // Movement queue size
     timeLeft: 30, // Time limit in seconds
@@ -49,11 +50,12 @@ var GAME = GAME || {
             }
         }
         
-        if (this.map === null || typeof this.map !== "object")
-            this.map = this.getMap();
-        
-        if (this.map === null || typeof this.map !== "object")
+        if (this.map === null || typeof this.map !== "object") {
+            this.getMap(function(data){
+                GAME.init({map: data});
+            });
             return;
+        }
         
         for (var property in this.map) {
             if (this.map.hasOwnProperty(property) && this.hasOwnProperty(property)) {
@@ -184,6 +186,13 @@ var GAME = GAME || {
         this.frontContext.fillStyle="orange";
         this.frontContext.fillText(
                 this.timeLeft + ' сек.',
+                300,
+                this.frontCanvas.height - 32,
+                200);
+                
+        this.frontContext.fillStyle="gray";
+        this.frontContext.fillText(
+                'Уровень ' + this.level,
                 50,
                 this.frontCanvas.height - 32,
                 200);
@@ -201,6 +210,10 @@ var GAME = GAME || {
         this.frontContext.fillText(text, this.canvas.width-440, this.canvas.height-250);
         
         clearInterval(this.loop);
+        
+//        this.level++;
+//        this.map = null;
+//        this.init();
     },
 
     updateStageObjects: function () {
@@ -383,15 +396,23 @@ var GAME = GAME || {
             ctx.fill();
         }
     },
-    
-    getMap: function() {
-        return {
-                timeLeft: 45,
-                heroMap: [{"x":14,"y":6}],
-                enemiesMap: [{"x":16,"y":1},{"x":1,"y":14},{"x":9,"y":12},{"x":16,"y":12},{"x":22,"y":10},{"x":6,"y":0},{"x":1,"y":5}],
-                coinsMap: [{"x":4,"y":1},{"x":9,"y":0},{"x":0,"y":11},{"x":4,"y":14},{"x":7,"y":10},{"x":11,"y":15},{"x":14,"y":14},{"x":12,"y":1},{"x":20,"y":14},{"x":22,"y":13},{"x":20,"y":12},{"x":23,"y":0}],
-                wallsMap: [{"x":3,"y":0},{"x":3,"y":1},{"x":3,"y":2},{"x":3,"y":3},{"x":4,"y":3},{"x":5,"y":3},{"x":8,"y":3},{"x":9,"y":3},{"x":10,"y":2},{"x":10,"y":1},{"x":10,"y":0},{"x":0,"y":9},{"x":1,"y":9},{"x":4,"y":9},{"x":5,"y":9},{"x":6,"y":15},{"x":6,"y":14},{"x":6,"y":10},{"x":6,"y":9},{"x":6,"y":11},{"x":7,"y":9},{"x":8,"y":9},{"x":10,"y":9},{"x":9,"y":9},{"x":11,"y":9},{"x":12,"y":9},{"x":12,"y":10},{"x":12,"y":12},{"x":12,"y":11},{"x":12,"y":13},{"x":12,"y":15},{"x":12,"y":14},{"x":10,"y":4},{"x":10,"y":3},{"x":10,"y":7},{"x":10,"y":8},{"x":11,"y":3},{"x":12,"y":3},{"x":15,"y":3},{"x":16,"y":3},{"x":17,"y":3},{"x":18,"y":3},{"x":18,"y":4},{"x":19,"y":3},{"x":22,"y":3},{"x":23,"y":3},{"x":18,"y":7},{"x":18,"y":8},{"x":13,"y":9},{"x":17,"y":9},{"x":18,"y":9},{"x":14,"y":9},{"x":18,"y":10},{"x":18,"y":11},{"x":18,"y":13},{"x":18,"y":12},{"x":18,"y":14},{"x":18,"y":15}],
-        };
+    getMap: function(handleData) {
+        $.ajax({
+            type: "POST",
+            url: "api",
+            data: {level: GAME.level},
+            success: function(data){
+                handleData(JSON.parse(data));
+            },
+            dataType: "text"
+        });
+//        return {
+//                timeLeft: 45,
+//                heroMap: [{"x":14,"y":6}],
+//                enemiesMap: [{"x":16,"y":1},{"x":1,"y":14},{"x":9,"y":12},{"x":16,"y":12},{"x":22,"y":10},{"x":6,"y":0},{"x":1,"y":5}],
+//                coinsMap: [{"x":4,"y":1},{"x":9,"y":0},{"x":0,"y":11},{"x":4,"y":14},{"x":7,"y":10},{"x":11,"y":15},{"x":14,"y":14},{"x":12,"y":1},{"x":20,"y":14},{"x":22,"y":13},{"x":20,"y":12},{"x":23,"y":0}],
+//                wallsMap: [{"x":3,"y":0},{"x":3,"y":1},{"x":3,"y":2},{"x":3,"y":3},{"x":4,"y":3},{"x":5,"y":3},{"x":8,"y":3},{"x":9,"y":3},{"x":10,"y":2},{"x":10,"y":1},{"x":10,"y":0},{"x":0,"y":9},{"x":1,"y":9},{"x":4,"y":9},{"x":5,"y":9},{"x":6,"y":15},{"x":6,"y":14},{"x":6,"y":10},{"x":6,"y":9},{"x":6,"y":11},{"x":7,"y":9},{"x":8,"y":9},{"x":10,"y":9},{"x":9,"y":9},{"x":11,"y":9},{"x":12,"y":9},{"x":12,"y":10},{"x":12,"y":12},{"x":12,"y":11},{"x":12,"y":13},{"x":12,"y":15},{"x":12,"y":14},{"x":10,"y":4},{"x":10,"y":3},{"x":10,"y":7},{"x":10,"y":8},{"x":11,"y":3},{"x":12,"y":3},{"x":15,"y":3},{"x":16,"y":3},{"x":17,"y":3},{"x":18,"y":3},{"x":18,"y":4},{"x":19,"y":3},{"x":22,"y":3},{"x":23,"y":3},{"x":18,"y":7},{"x":18,"y":8},{"x":13,"y":9},{"x":17,"y":9},{"x":18,"y":9},{"x":14,"y":9},{"x":18,"y":10},{"x":18,"y":11},{"x":18,"y":13},{"x":18,"y":12},{"x":18,"y":14},{"x":18,"y":15}],
+//        };
     }
 
 };

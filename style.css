@@ -22,3 +22,11 @@ canvas {
 #foreground {
     z-index: 3;
 }
+
+#links a {
+    display: block;
+    color: grey;
+    padding: 20px 30px;
+    background: #444;
+    margin: 10px;
+}
