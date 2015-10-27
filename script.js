@@ -28,6 +28,7 @@ var GAME = GAME || {
     timeLeft: 30, // Time limit in seconds
     imgPath: 'img/',
     darkness: false, // Should we use gradient foreground layer
+    shadowColor: '#333',
     wallColor: 'darkgray',
     wallFile: 'wall.png',
     bgFile: 'floor.png',
@@ -84,6 +85,11 @@ var GAME = GAME || {
 
     initStageObjects: function () {
         
+        if (this.darkness) {
+            this.wallColor = this.shadowColor;
+            this.wallFile = null;
+        }
+        
         // Init walls
         if (this.wallFile) {
             var wallImg = new Image();
@@ -100,9 +106,6 @@ var GAME = GAME || {
                 this.staticObjects.push(new Wall(this.wallsMap[i]));
             }
         }
-        
-        if (this.darkness)
-            this.wallColor = 'black';
 
         // Init coins
         var coinsImg = new Image();
@@ -361,9 +364,9 @@ var GAME = GAME || {
             ctx.lineTo(x3, y3);
             ctx.closePath();
             ctx.lineWidth="1";
-            ctx.strokeStyle="black"; // Fix thin lines beetwen areas
+            ctx.strokeStyle=GAME.shadowColor; // Fix thin lines beetwen areas
             ctx.stroke();
-            ctx.fillStyle="black";
+            ctx.fillStyle=GAME.shadowColor;
             
             ctx.fill();
         }
