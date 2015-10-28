@@ -37,10 +37,6 @@ var GAME = GAME || {
     hudHeight: 3, // Height bottom HUD area in cells
     directions: ['left', 'right', 'up', 'down'],
     map: null,
-    musicPlayer: null,
-    soundsFolder: 'sounds/',
-    musicNbr: 1,
-
     heroMap: [{"x":1,"y":1}],
     enemiesMap: [],
     coinsMap: [],
@@ -81,21 +77,8 @@ var GAME = GAME || {
         // Set background image
         field.style.background = 'url("'+this.imgPath+this.bgFile+'") repeat';
         
-        // Init music player
-        this.musicPlayer = document.createElement('audio');
-        this.musicPlayer.setAttribute('src', this.soundsFolder + 'music-' + this.musicNbr + '.wav');
-        this.musicPlayer.setAttribute('controls', 'controls');
-        this.musicPlayer.setAttribute('id', 'audioPlayer');
-        
-        document.body.appendChild(this.musicPlayer);
-        
-        this.musicPlayer
-            .play();
-    
-        this.musicPlayer.onended = function() {GAME.nextMusic();};
-        this.musicPlayer.onerror = function() {GAME.nextMusic(1);};
-        
-        
+        // Init sounds
+        SOUND.init();
         
         this.staticCanvas = document.getElementById("background");
         this.staticCanvas.width = this.cellsX * this.cellSize;
@@ -199,14 +182,14 @@ var GAME = GAME || {
         this.frontContext.fillStyle="lawngreen";
         this.frontContext.fillText(
                 'Собрано: ' + this.score,
-                this.canvas.width - 210,
+                this.canvas.width - 280,
                 this.frontCanvas.height - 32,
                 200); // Max width
         
         this.frontContext.fillStyle="orange";
         this.frontContext.fillText(
                 this.timeLeft + ' сек.',
-                300,
+                280,
                 this.frontCanvas.height - 32,
                 200);
                 
@@ -234,6 +217,11 @@ var GAME = GAME || {
 //        this.level++;
 //        this.map = null;
 //        this.init();
+    },
+    
+    onDeath: function() {
+        GAME.stop("Поймали!", "red");
+        SOUND.onEvent("death");
     },
 
     updateStageObjects: function () {
@@ -418,13 +406,78 @@ var GAME = GAME || {
     nextMusic: function(musicNbr) {
         GAME.musicNbr++;
         
-        if (musicNbr)
-            GAME.musicNbr = musicNbr;
-            
-        GAME.musicPlayer.setAttribute('src', GAME.soundsFolder + 'music-' + GAME.musicNbr + '.wav');
-        GAME.musicPlayer.play();
+        
     }
 
+};
+
+var SOUND = SOUND || {
+    muted: false,
+    soundsFolder: 'sounds/',
+    musicNbr: 0,
+    musicPlayer: null,
+    fxPlayer: null,
+    mute: null,
+    musicFiles: ['music-1.wav'],
+    deathSounds: ['fail-1.mp3', 'fail-2.mp3', 'fail-3.mp3', 'fail-4.mp3'],
+    coinSounds: ['coin-1.mp3', 'coin-2.mp3', 'coin-3.mp3'],
+    
+    init: function() {
+        // Create background music player audio element
+        this.musicPlayer = document.createElement('audio');
+        
+        document.body.appendChild(this.musicPlayer);
+        
+        SOUND.nextMusic();
+        
+        // Change track on end
+        this.musicPlayer.onended = function() {
+            SOUND.nextMusic();
+        };
+        
+        // Create FX player audio element
+        this.fxPlayer = document.createElement('audio');
+        document.body.appendChild(this.fxPlayer);
+        
+        // Create mute element
+        this.mute = document.createElement('a');
+        this.mute.setAttribute('href', '#');
+        this.mute.setAttribute('id', 'mute-sound');
+        this.mute.className = 'not-muted';
+        
+        this.mute.addEventListener("click", function(event){
+            SOUND.muted = !SOUND.muted;
+            SOUND.fxPlayer.muted = SOUND.muted;
+            SOUND.musicPlayer.muted = SOUND.muted;
+            
+            SOUND.mute.className = (SOUND.muted ? 'muted' : 'not-muted');
+            
+            event.stopPropagation();
+        });
+        
+        document.getElementById("gameField").appendChild(this.mute);
+    },
+    
+    getRandom: function(namesArray) {
+        return namesArray[Math.floor(Math.random() * namesArray.length)];
+    },
+    
+    nextMusic: function() {
+        var sound = this.getRandom(SOUND.musicFiles);
+        
+        SOUND.musicPlayer.setAttribute('src', SOUND.soundsFolder + sound);
+        SOUND.musicPlayer.play();
+    },
+    
+    onEvent: function(event) {
+        var name = event+'Sounds';
+        if (this.hasOwnProperty(name) && Array.isArray(this[name])) {
+            var sound = this.getRandom(this[name]);
+            
+            this.fxPlayer.setAttribute('src', this.soundsFolder + sound);
+            this.fxPlayer.play();
+        }
+    }
 };
 
 
@@ -467,7 +520,7 @@ var Item = createClass({
                             break;
 
                         case "enemy" :
-                            GAME.stop("Поймали!", "red");
+                            GAME.onDeath();
                             return;
                             break
 
@@ -478,7 +531,7 @@ var Item = createClass({
                 } else if (this.type === "enemy") {
                     switch(GAME.allObjects[i].type) {                     
                         case "hero" :
-                            GAME.stop("Поймали!", "red");
+                            GAME.onDeath();
                             return;
                             break
 
@@ -808,6 +861,8 @@ function Coin(cell, id) {
                 GAME.staticObjects.splice(i, 1); // Delete element
                 continue;
         }
+        
+        SOUND.onEvent('coin');
         
         GAME.renderStatic();
         GAME.score++;
