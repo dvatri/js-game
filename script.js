@@ -37,6 +37,9 @@ var GAME = GAME || {
     hudHeight: 3, // Height bottom HUD area in cells
     directions: ['left', 'right', 'up', 'down'],
     map: null,
+    musicPlayer: null,
+    soundsFolder: 'sounds/',
+    musicNbr: 1,
 
     heroMap: [{"x":1,"y":1}],
     enemiesMap: [],
@@ -70,12 +73,29 @@ var GAME = GAME || {
             GAME.hero.keyUp(e.keyCode);
         };
         
+        
         var field = document.getElementById("gameField");
         field.style.width = this.cellsX * this.cellSize + "px";
         field.style.height = (this.cellsY + this.hudHeight) * this.cellSize + "px";
                 
         // Set background image
         field.style.background = 'url("'+this.imgPath+this.bgFile+'") repeat';
+        
+        // Init music player
+        this.musicPlayer = document.createElement('audio');
+        this.musicPlayer.setAttribute('src', this.soundsFolder + 'music-' + this.musicNbr + '.wav');
+        this.musicPlayer.setAttribute('controls', 'controls');
+        this.musicPlayer.setAttribute('id', 'audioPlayer');
+        
+        document.body.appendChild(this.musicPlayer);
+        
+        this.musicPlayer
+            .play();
+    
+        this.musicPlayer.onended = function() {GAME.nextMusic();};
+        this.musicPlayer.onerror = function() {GAME.nextMusic(1);};
+        
+        
         
         this.staticCanvas = document.getElementById("background");
         this.staticCanvas.width = this.cellsX * this.cellSize;
@@ -325,14 +345,14 @@ var GAME = GAME || {
             
             var ctx = GAME.frontContext;
             
-            var x0=0;
-            var y0=0;
-            var x1=0;
-            var y1=0;
-            var x2=0;
-            var y2=0;
-            var x3=0;
-            var y3=0;
+            var x0=0,
+                y0=0,
+                x1=0,
+                y1=0,
+                x2=0,
+                y2=0,
+                x3=0,
+                y3=0;
             
             ctx.beginPath();
             
@@ -370,19 +390,6 @@ var GAME = GAME || {
                 y3 = (x3 * (hy - y1) - hy*x1 + hx*y1) / (hx - x1);
             }
             
-//            function Factor(numb){
-//		if (numb < 0){
-//			return (" - "+Math.abs(numb));
-//		}
-//		return (" + "+numb);
-//            }
-//            
-//            var A2 = hy - y0;
-//            var B2 = x0 - hx;
-//            var C2 = hx*y0 - x0*hy;
-//            var s = A2+" x"+Factor(B2)+" y"+Factor(C2)+" = 0";
-            
-            
             ctx.moveTo(x2, y2);
             ctx.lineTo(x0, y0);
             ctx.lineTo(x1, y1);
@@ -406,13 +413,16 @@ var GAME = GAME || {
             },
             dataType: "text"
         });
-//        return {
-//                timeLeft: 45,
-//                heroMap: [{"x":14,"y":6}],
-//                enemiesMap: [{"x":16,"y":1},{"x":1,"y":14},{"x":9,"y":12},{"x":16,"y":12},{"x":22,"y":10},{"x":6,"y":0},{"x":1,"y":5}],
-//                coinsMap: [{"x":4,"y":1},{"x":9,"y":0},{"x":0,"y":11},{"x":4,"y":14},{"x":7,"y":10},{"x":11,"y":15},{"x":14,"y":14},{"x":12,"y":1},{"x":20,"y":14},{"x":22,"y":13},{"x":20,"y":12},{"x":23,"y":0}],
-//                wallsMap: [{"x":3,"y":0},{"x":3,"y":1},{"x":3,"y":2},{"x":3,"y":3},{"x":4,"y":3},{"x":5,"y":3},{"x":8,"y":3},{"x":9,"y":3},{"x":10,"y":2},{"x":10,"y":1},{"x":10,"y":0},{"x":0,"y":9},{"x":1,"y":9},{"x":4,"y":9},{"x":5,"y":9},{"x":6,"y":15},{"x":6,"y":14},{"x":6,"y":10},{"x":6,"y":9},{"x":6,"y":11},{"x":7,"y":9},{"x":8,"y":9},{"x":10,"y":9},{"x":9,"y":9},{"x":11,"y":9},{"x":12,"y":9},{"x":12,"y":10},{"x":12,"y":12},{"x":12,"y":11},{"x":12,"y":13},{"x":12,"y":15},{"x":12,"y":14},{"x":10,"y":4},{"x":10,"y":3},{"x":10,"y":7},{"x":10,"y":8},{"x":11,"y":3},{"x":12,"y":3},{"x":15,"y":3},{"x":16,"y":3},{"x":17,"y":3},{"x":18,"y":3},{"x":18,"y":4},{"x":19,"y":3},{"x":22,"y":3},{"x":23,"y":3},{"x":18,"y":7},{"x":18,"y":8},{"x":13,"y":9},{"x":17,"y":9},{"x":18,"y":9},{"x":14,"y":9},{"x":18,"y":10},{"x":18,"y":11},{"x":18,"y":13},{"x":18,"y":12},{"x":18,"y":14},{"x":18,"y":15}],
-//        };
+    },
+    
+    nextMusic: function(musicNbr) {
+        GAME.musicNbr++;
+        
+        if (musicNbr)
+            GAME.musicNbr = musicNbr;
+            
+        GAME.musicPlayer.setAttribute('src', GAME.soundsFolder + 'music-' + GAME.musicNbr + '.wav');
+        GAME.musicPlayer.play();
     }
 
 };
@@ -513,16 +523,16 @@ var Item = createClass({
         if (this.vx === 0 && this.vy === 0)     
             return;
         
-        var lastMove = true; // Is it last animation in move
-        var inGrid = false;
-        var absVX = this.vx;
-        var absVY = this.vy;
-        var signX = 1;
-        var signY = 1;
-        var x = this.x;
-        var y = this.y;
-        var vx = this.vx;
-        var vy = this.vy;
+        var lastMove = true, // Is it last animation in move
+            inGrid = false,
+            absVX = this.vx,
+            absVY = this.vy,
+            signX = 1,
+            signY = 1,
+            x = this.x,
+            y = this.y,
+            vx = this.vx,
+            vy = this.vy;
                 
         if (this.vx < 0) {
             absVX *= -1;

@@ -28,7 +28,7 @@
                     $("#links").append('<a href="?level='+(GAME.level-1)+'">Предыдущий уровень</a>');
 
                 $("#links").append('<a href="?level='+(GAME.level)+'">Попробовать снова</a>');
-                
+
                 $("#links").append('<a href="?level='+(GAME.level+1)+'">Следующий уровень</a>');
 
             });
