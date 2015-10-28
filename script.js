@@ -418,7 +418,7 @@ var SOUND = SOUND || {
     musicPlayer: null,
     fxPlayer: null,
     mute: null,
-    musicFiles: ['music-1.wav'],
+    musicFiles: ['music-1.mp3'],
     deathSounds: ['fail-1.mp3', 'fail-2.mp3', 'fail-3.mp3', 'fail-4.mp3'],
     coinSounds: ['coin-1.mp3', 'coin-2.mp3', 'coin-3.mp3'],
     
