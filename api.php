@@ -1,8 +1,10 @@
 <?php
 
 $levels = [];
+$levels[0]=null;
 
-$levels[1] = '{
+$levels[] = '{
+"darkness":true,
 "timeLeft": 45,
 "heroMap": [{"x":14,"y":6}],
 "enemiesMap": [{"x":16,"y":1},{"x":1,"y":14},{"x":9,"y":12},{"x":16,"y":12},{"x":22,"y":10},{"x":6,"y":0},{"x":1,"y":5}],
