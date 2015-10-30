@@ -15,7 +15,7 @@ var GAME = GAME || {
     frontContext: null,
     cellSize: 30, // Cell size in pixels
     animationSpeed: 6, // 1..cellSize, default 6
-    enemySpeed: 3, // default 3
+    enemySpeed: 2, // default 3
     hero: null, // Movable item
     cellsX: 24, // Number of horizontal cells
     cellsY: 16, // Number of vertical cells
