@@ -364,10 +364,10 @@ var GAME = GAME || {
                 y1 = wall.y + GAME.cellSize;
             }
             
-            // Фиксим ситуацию с точками по позные стороны от героя
+            // Фиксим ситуацию с точками тени по разные стороны от героя
             if (wall.x < hx && hx < (wall.x+GAME.cellSize)) {
-                x2 = 0;
-                x3 = GAME.cellsX * GAME.cellSize;
+                x2 = (y2 * (hx - x0) - hx*y0 + hy*x0) / (hy - y0);
+                x3 = (y3 * (hx - x1) - hx*y1 + hy*x1) / (hy - y1);
             }
             
             if ((hy-GAME.cellSize / 2) >= (wall.y+GAME.cellSize)) {
