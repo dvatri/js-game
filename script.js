@@ -26,7 +26,7 @@ var GAME = GAME || {
     level: 1,
     randomMovementDistance: 6, // Max number of cells to move randomly
     randomMovementQueue: 2, // Movement queue size
-    timeLeft: 30, // Time limit in seconds
+    timeLeft: 45, // Time limit in seconds
     imgPath: 'img/',
     darkness: false, // Should we use gradient foreground layer
     shadowColor: '#333',
@@ -418,7 +418,7 @@ var SOUND = SOUND || {
     musicPlayer: null,
     fxPlayer: null,
     mute: null,
-    musicFiles: ['music-1.mp3', 'music-2.mp3'],
+    musicFiles: ['music-1.mp3', 'music-2.mp3', 'music-3.mp3'],
     deathSounds: ['fail-1.mp3', 'fail-2.mp3', 'fail-3.mp3', 'fail-4.mp3'],
     coinSounds: ['coin-1.mp3', 'coin-2.mp3', 'coin-3.mp3'],
     
