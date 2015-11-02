@@ -221,6 +221,7 @@ var GAME = GAME || {
     
     onDeath: function() {
         GAME.stop("Поймали!", "red");
+        SOUND.musicPlayer.pause();
         SOUND.onEvent("death");
     },
 
@@ -254,16 +255,23 @@ var GAME = GAME || {
     },
     
     checkScore: function() {
-        if (this.score === this.coinsMap.length)
+        if (this.score === this.coinsMap.length) {
             this.stop("Все собрано!", "green");
+            SOUND.musicPlayer.pause();
+            SOUND.onEvent("done");
+        }
     },
     
     updateTime: function() {
-        if (this.t % 1000 === 0)
+        if (this.t % 1000 === 0) {
             this.timeLeft--;
+        }
         
-        if (this.timeLeft === 0)
+        if (this.timeLeft === 0) {
             this.stop("Кончилось время!", "orange");
+            SOUND.musicPlayer.pause();
+            SOUND.onEvent("timeIsUp");
+        }
     },
     
     renderImage: function(image, x, y, direction, item) {
@@ -421,6 +429,8 @@ var SOUND = SOUND || {
     musicFiles: ['music-1.mp3', 'music-2.mp3', 'music-3.mp3'],
     deathSounds: ['fail-1.mp3', 'fail-2.mp3', 'fail-3.mp3', 'fail-4.mp3'],
     coinSounds: ['coin-1.mp3', 'coin-2.mp3', 'coin-3.mp3'],
+    //doneSounds: [],
+    timeIsUpSounds: ['jingle-1.mp3'],
     
     init: function() {
         // Create background music player audio element
