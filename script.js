@@ -117,6 +117,8 @@ var GAME = GAME || {
                     wall.img.source = wallImg;
                     GAME.staticObjects.push(wall);
                 }
+                
+                GAME.renderStatic();
             };
         } else {
             for (var i=0; i < this.wallsMap.length; i++) {
