@@ -461,7 +461,7 @@ var SOUND = SOUND || {
     coinSounds: ['coin-1.mp3', 'coin-2.mp3', 'coin-3.mp3'],
     doneSounds: ['win.mp3'],
     timeIsUpSounds: ['jingle-1.mp3'],
-    winSounds: ['win.mp3'],
+    winSounds: ['total-win.mp3'],
     
     init: function() {
         // Create background music player audio element
