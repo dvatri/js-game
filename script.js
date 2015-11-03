@@ -466,21 +466,26 @@ var SOUND = SOUND || {
     winSounds: ['total-win.mp3'],
     
     init: function() {
-        // Create background music player audio element
-        this.musicPlayer = document.createElement('audio');
         
-        document.body.appendChild(this.musicPlayer);
+        // Create background music player audio element
+        if (this.musicPlayer===null) {
+            this.musicPlayer = document.createElement('audio');
+
+            document.body.appendChild(this.musicPlayer);
+            
+            // Change track on end
+            this.musicPlayer.onended = function() {
+                SOUND.nextMusic();
+            };
+        }
         
         SOUND.nextMusic();
         
-        // Change track on end
-        this.musicPlayer.onended = function() {
-            SOUND.nextMusic();
-        };
-        
         // Create FX player audio element
-        this.fxPlayer = document.createElement('audio');
-        document.body.appendChild(this.fxPlayer);
+        if (this.fxPlayer === null) {
+            this.fxPlayer = document.createElement('audio');
+            document.body.appendChild(this.fxPlayer);
+        }
         
         if (this.mute===null) {
             // Create mute element
@@ -488,19 +493,18 @@ var SOUND = SOUND || {
             this.mute.setAttribute('href', '#');
             this.mute.setAttribute('id', 'mute-sound');
             this.mute.className = 'not-muted';
+            
+            this.mute.addEventListener("click", function(event){
+                SOUND.muted = !SOUND.muted;
+                SOUND.fxPlayer.muted = SOUND.muted;
+                SOUND.musicPlayer.muted = SOUND.muted;
+
+                SOUND.mute.className = (SOUND.muted ? 'muted' : 'not-muted');
+
+                event.stopPropagation();
+            });
+            document.getElementById("gameField").appendChild(this.mute);
         }
-        
-        this.mute.addEventListener("click", function(event){
-            SOUND.muted = !SOUND.muted;
-            SOUND.fxPlayer.muted = SOUND.muted;
-            SOUND.musicPlayer.muted = SOUND.muted;
-            
-            SOUND.mute.className = (SOUND.muted ? 'muted' : 'not-muted');
-            
-            event.stopPropagation();
-        });
-        
-        document.getElementById("gameField").appendChild(this.mute);
     },
     
     getRandom: function(namesArray) {
@@ -524,8 +528,6 @@ var SOUND = SOUND || {
         }
     }
 };
-
-
 
 
 
