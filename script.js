@@ -482,11 +482,13 @@ var SOUND = SOUND || {
         this.fxPlayer = document.createElement('audio');
         document.body.appendChild(this.fxPlayer);
         
-        // Create mute element
-        this.mute = document.createElement('a');
-        this.mute.setAttribute('href', '#');
-        this.mute.setAttribute('id', 'mute-sound');
-        this.mute.className = 'not-muted';
+        if (this.mute===null) {
+            // Create mute element
+            this.mute = document.createElement('a');
+            this.mute.setAttribute('href', '#');
+            this.mute.setAttribute('id', 'mute-sound');
+            this.mute.className = 'not-muted';
+        }
         
         this.mute.addEventListener("click", function(event){
             SOUND.muted = !SOUND.muted;
