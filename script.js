@@ -28,11 +28,6 @@ var GAME = GAME || {
     randomMovementQueue: 2, // Movement queue size
     timeLeft: 45, // Time limit in seconds
     imgPath: 'img/',
-    darkness: false, // Should we use gradient foreground layer
-    shadowColor: '#333',
-    wallColor: '#555',
-    wallFile: 'wall.png',
-    bgFile: 'floor.png',
     hudColor: '#500',
     hudHeight: 3, // Height bottom HUD area in cells
     directions: ['left', 'right', 'up', 'down'],
@@ -41,10 +36,23 @@ var GAME = GAME || {
     enemiesMap: [],
     coinsMap: [],
     wallsMap: [],
+    
+    setDefaults: function () {
+        this.levelScore = 0;
+        this.timeLeft = 45;
+        this.darkness = false; // Should we use gradient foreground layer
+        this.shadowColor = '#333';
+        this.wallColor = '#555';
+        this.wallFile = 'wall.png';
+        this.bgFile = 'floor.png';
+    },
 
     init: function (data) {
+        
+        this.setDefaults();
+        
         if (typeof(data) === 'object') {
-            for (var p in data) {  
+            for (var p in data) {
                 this[p] = data[p];
             }
         }
