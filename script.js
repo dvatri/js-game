@@ -161,6 +161,7 @@ var GAME = GAME || {
             GAME.hero.img.source = heroImg;
         };
         heroImg.src = this.imgPath + 'hero.png';
+        this.hero.shine(1000);
 
         // Init enemies
         var enemyImg = new Image();
@@ -791,6 +792,9 @@ var Hero = createClass({
             'source': null,
             'current': 0
         };
+        this.shineTime = 0;
+        this.shineDuration = 0;
+        this.shineColor = 'rgba(255,255,0,.5)';
     },
     
     keyDown: function(key) {
@@ -836,10 +840,13 @@ var Hero = createClass({
     draw: function() {
         this.manipulate();
         this.animate();
-        this.shine();
+        
+        if (this.shineDuration) {
+            this.drawShine();
+        }
         
         GAME.renderImage(this.img, this.x, this.y, this.direction, this);
-        
+            
         if (GAME.darkness) {
             GAME.drawShadows();
             var grd = GAME
@@ -853,17 +860,29 @@ var Hero = createClass({
         }
     },
     
-    shine: function() {
-        if (GAME.t > 1500)
-            return;
+    shine: function(duration, color) {
+        this.shineTime = 0;
+        this.shineDuration = duration;
         
-        var radius = Math.round(Math.abs(750-Math.abs(GAME.t-750))/20);
+        if (color)
+            this.shineColor = color;
+    },
+    
+    drawShine: function() {
+        if (this.shineTime > this.shineDuration) {
+            this.shineTime = 0;
+            this.shineDuration = 0;
+        }
+        
+        var radius = Math.round(Math.abs(this.shineDuration/2-Math.abs(this.shineTime-this.shineDuration/2))/(this.shineDuration/70));
         
         GAME.context.beginPath();
-        GAME.context.arc(GAME.hero.x+GAME.cellSize/2, GAME.hero.y+GAME.cellSize/2, radius, 0, 2*Math.PI);
-        GAME.context.strokeStyle = 'rgba(255,255,0,.3)';
+        GAME.context.arc(this.x+GAME.cellSize/2, this.y+GAME.cellSize/2, radius, 0, 2*Math.PI);
+        GAME.context.strokeStyle = this.shineColor;
         GAME.context.lineWidth = 30;
         GAME.context.stroke();
+
+        this.shineTime += GAME.frameInterval;
     }
 });
 
