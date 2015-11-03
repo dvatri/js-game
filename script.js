@@ -40,6 +40,7 @@ var GAME = GAME || {
     maxDiscount: 20,
     
     setDefaults: function () {
+        this.t = 0;
         this.levelScore = 0;
         this.timeLeft = 45;
         this.darkness = false; // Should we use gradient foreground layer
@@ -835,6 +836,7 @@ var Hero = createClass({
     draw: function() {
         this.manipulate();
         this.animate();
+        this.shine();
         
         GAME.renderImage(this.img, this.x, this.y, this.direction, this);
         
@@ -842,13 +844,26 @@ var Hero = createClass({
             GAME.drawShadows();
             var grd = GAME
                     .frontContext
-                    .createRadialGradient(this.x, this.y, GAME.cellSize*GAME.cellsX, this.x, this.y, 20);
+                    .createRadialGradient(this.x, this.y, GAME.cellSize*GAME.cellsX, this.x, this.y, 100);
             grd.addColorStop(0, 'black');
             grd.addColorStop(.8, 'black');
             grd.addColorStop(1, 'rgba(0,0,0,.01)');
             GAME.frontContext.fillStyle = grd;
             GAME.frontContext.fillRect(0,0,GAME.canvas.width,GAME.canvas.height);
         }
+    },
+    
+    shine: function() {
+        if (GAME.t > 1500)
+            return;
+        
+        var radius = Math.round(Math.abs(750-Math.abs(GAME.t-750))/20);
+        
+        GAME.context.beginPath();
+        GAME.context.arc(GAME.hero.x+GAME.cellSize/2, GAME.hero.y+GAME.cellSize/2, radius, 0, 2*Math.PI);
+        GAME.context.strokeStyle = 'rgba(255,255,0,.3)';
+        GAME.context.lineWidth = 30;
+        GAME.context.stroke();
     }
 });
 
