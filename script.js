@@ -88,6 +88,17 @@ var GAME = GAME || {
         // Set background image
         field.style.background = 'url("'+this.imgPath+this.bgFile+'") repeat';
         
+        // Click event listener
+        field.onmousedown = function(e){
+            GAME.hero.clicked(
+                    e.clientX - Math.floor(GAME.canvas.getBoundingClientRect().left),
+                    e.clientY - Math.floor(GAME.canvas.getBoundingClientRect().top)
+            );
+        };
+        field.onmouseup = function(){
+            GAME.hero.unclicked();
+        };
+        
         // Init sounds
         SOUND.init();
         
@@ -606,7 +617,7 @@ var Item = createClass({
     checkPosition: function(x, y, oldX, oldY) {
         
         this.checkPos(x, y);
-        
+            
         // If marked as non-movable
         if (!this.canMove)
             return false;
@@ -639,7 +650,7 @@ var Item = createClass({
             y = this.y,
             vx = this.vx,
             vy = this.vy;
-                
+           
         if (this.vx < 0) {
             absVX *= -1;
             signX *= -1;
@@ -683,7 +694,7 @@ var Item = createClass({
                 lastMove = false;
             }
         }
-        
+                
         if (inGrid && !this.checkPosition(x, y, this.x, this.y)) {
             this.onStepEnd();
             this.vx = 0;
@@ -839,6 +850,31 @@ var Hero = createClass({
         }
     },
     
+    clicked: function(x, y) {
+        
+        this.pressedKeys = {38: false, 40: false, 37: false, 39: false};
+        
+        if (Math.abs(this.x + GAME.cellSize / 2 - x) > (GAME.cellSize / 2)) {
+            if (x > this.x) {
+                this.pressedKeys[39] = true;
+            } else {
+                this.pressedKeys[37] = true;
+            }
+        }
+        
+        if (Math.abs(this.y + GAME.cellSize / 2 - y) > (GAME.cellSize / 2)) {
+            if (y > this.y) {
+                this.pressedKeys[40] = true;
+            } else {
+                this.pressedKeys[38] = true;
+            }
+        }
+    },
+    
+    unclicked: function() {
+        this.pressedKeys = {38: false, 40: false, 37: false, 39: false};
+    },
+    
     setVX: function(px) {
         this.vx = (this.vx === 0) ? px : this.vx;
     },
@@ -861,7 +897,14 @@ var Hero = createClass({
             GAME.drawShadows();
             var grd = GAME
                     .frontContext
-                    .createRadialGradient(this.x, this.y, GAME.cellSize*GAME.cellsX, this.x, this.y, 100);
+                    .createRadialGradient(
+                        this.x,
+                        this.y,
+                        GAME.cellSize*GAME.cellsX,
+                        this.x,
+                        this.y,
+                        100
+                    );
             grd.addColorStop(0, 'black');
             grd.addColorStop(.8, 'black');
             grd.addColorStop(1, 'rgba(0,0,0,.01)');
@@ -884,7 +927,13 @@ var Hero = createClass({
             this.shineDuration = 0;
         }
         
-        var radius = Math.round(Math.abs(this.shineDuration/2-Math.abs(this.shineTime-this.shineDuration/2))/(this.shineDuration/70));
+        var radius = Math.round(
+                        Math.abs(
+                            this.shineDuration/2 - Math.abs(
+                                                        this.shineTime-this.shineDuration/2
+                                                   )
+                        )/(this.shineDuration/70)
+                    );
         
         GAME.context.beginPath();
         GAME.context.arc(this.x+GAME.cellSize/2, this.y+GAME.cellSize/2, radius, 0, 2*Math.PI);
