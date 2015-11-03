@@ -99,6 +99,15 @@ var GAME = GAME || {
             GAME.hero.unclicked();
         };
         
+        // Touch event listener
+        field.ontouchstart = function(e){
+            GAME.hero.clicked(
+                    e.touches[0].pageX - Math.floor(GAME.canvas.getBoundingClientRect().left),
+                    e.touches[0].pageY - Math.floor(GAME.canvas.getBoundingClientRect().top)
+            );
+        };
+        field.ontouchend = function(){GAME.hero.unclicked;};
+        
         // Init sounds
         SOUND.init();
         
@@ -116,7 +125,7 @@ var GAME = GAME || {
         this.frontCanvas.width = this.cellsX * this.cellSize;
         this.frontCanvas.height = (this.cellsY + this.hudHeight)* this.cellSize;
         this.frontContext = this.frontCanvas.getContext("2d");
-
+        
         this.initStageObjects();
 
         this.loop = setInterval(this.updateStage, this.frameInterval);
