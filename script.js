@@ -572,7 +572,13 @@ var Item = createClass({
                             break
 
                         case "wall" :
-                            this.canMove = false;
+                            // Can't move only if getting closer to wall, but not when going out
+                            if (
+                                GAME.findDistance(GAME.allObjects[i], {x: x, y: y}) <
+                                GAME.findDistance(GAME.allObjects[i], this)
+                            ) {
+                                this.canMove = false;
+                            }
                             break
                     }
                 } else if (this.type === "enemy") {
