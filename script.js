@@ -840,7 +840,7 @@ var Hero = createClass({
             GAME.drawShadows();
             var grd = GAME
                     .frontContext
-                    .createRadialGradient(this.x, this.y, GAME.cellSize*GAME.cellsX, this.x, this.y, 100);
+                    .createRadialGradient(this.x, this.y, GAME.cellSize*GAME.cellsX, this.x, this.y, 20);
             grd.addColorStop(0, 'black');
             grd.addColorStop(.8, 'black');
             grd.addColorStop(1, 'rgba(0,0,0,.01)');
