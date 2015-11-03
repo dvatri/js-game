@@ -2,7 +2,6 @@
     $scriptTail = md5(filemtime(__DIR__ . DIRECTORY_SEPARATOR . 'script.js'));
     $styleTail = md5(filemtime(__DIR__ . DIRECTORY_SEPARATOR . 'style.css'));
 ?>
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -26,18 +25,6 @@
                 });
             </script>
         <?php endif; ?>
-
-        <script>
-            $(document).ready(function(){
-                if (GAME.level > 1)
-                    $("#links").append('<a href="?level='+(GAME.level-1)+'">Предыдущий уровень</a>');
-
-                $("#links").append('<a href="?level='+(GAME.level)+'">Попробовать снова</a>');
-
-                $("#links").append('<a href="?level='+(GAME.level+1)+'">Следующий уровень</a>');
-
-            });
-        </script>
 
     </body>
 </html>
