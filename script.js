@@ -185,6 +185,9 @@ var GAME = GAME || {
         
         var hudY = this.frontCanvas.height - this.hudHeight*GAME.cellSize;
         
+        this.frontContext.textBaseline = "middle";
+        this.frontContext.textAlign = "center";
+        
         this.frontContext.fillStyle=this.hudColor;
         this.frontContext.fillRect(0, hudY, this.frontCanvas.width, this.frontCanvas.height);
         
@@ -192,47 +195,61 @@ var GAME = GAME || {
         this.frontContext.fillStyle="lawngreen";
         this.frontContext.fillText(
                 'Собрано: ' + this.score,
-                this.canvas.width - 280,
-                this.frontCanvas.height - 32,
+                this.canvas.width - 170,
+                this.frontCanvas.height - 42,
                 200); // Max width
         
         this.frontContext.fillStyle="orange";
         this.frontContext.fillText(
                 this.timeLeft + ' сек.',
-                280,
-                this.frontCanvas.height - 32,
+                350,
+                this.frontCanvas.height - 42,
                 200);
                 
         this.frontContext.fillStyle="gray";
         this.frontContext.fillText(
                 'Уровень ' + this.level,
-                50,
-                this.frontCanvas.height - 32,
+                100,
+                this.frontCanvas.height - 42,
                 200);
     },
     
     stop: function(text, color) {
-        
         this.objects = [];
         this.staticObjects = [];
         this.darkness = false;
         this.frontContext.fillStyle=color;
         this.frontContext.fillRect(0, 0, GAME.cellSize*GAME.cellsX, GAME.cellSize*GAME.cellsY);
         this.frontContext.font = "40px Impact";
-        this.frontContext.fillStyle = 'white';
-        this.frontContext.fillText(text, this.canvas.width-440, this.canvas.height-250);
+        this.frontContext.fillStyle = "white";
+        this.frontContext.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
         
         clearInterval(this.loop);
-        
-//        this.level++;
-//        this.map = null;
-//        this.init();
+        GAME.nextLevelTimeout = setTimeout(this.nextLevel, 5000);
+    },
+    
+    nextLevel: function() {
+        if (GAME.map.last === true) {
+            GAME.onWin();
+            return;
+        }
+            
+        GAME.level++;
+        GAME.map = null;
+        GAME.init();
     },
     
     onDeath: function() {
         GAME.stop("Поймали!", "red");
         SOUND.musicPlayer.pause();
         SOUND.onEvent("death");
+    },
+    
+    onWin: function() {
+        GAME.stop("ДА!!!!! Всё позади, ваша скидка 10"+ "%.", "#0c3");
+        SOUND.musicPlayer.pause();
+        SOUND.onEvent("win");
+        clearTimeout(GAME.nextLevelTimeout);
     },
 
     updateStageObjects: function () {
@@ -265,7 +282,7 @@ var GAME = GAME || {
     },
     
     checkScore: function() {
-        if (this.score === this.coinsMap.length) {
+        if (this.levelScore === this.coinsMap.length) {
             this.stop("Все собрано!", "green");
             SOUND.musicPlayer.pause();
             SOUND.onEvent("done");
@@ -409,6 +426,7 @@ var GAME = GAME || {
             ctx.fill();
         }
     },
+    
     getMap: function(handleData) {
         $.ajax({
             type: "POST",
@@ -439,8 +457,9 @@ var SOUND = SOUND || {
     musicFiles: ['music-1.mp3', 'music-2.mp3', 'music-3.mp3'],
     deathSounds: ['fail-1.mp3', 'fail-2.mp3', 'fail-3.mp3', 'fail-4.mp3'],
     coinSounds: ['coin-1.mp3', 'coin-2.mp3', 'coin-3.mp3'],
-    //doneSounds: [],
+    doneSounds: ['win.mp3'],
     timeIsUpSounds: ['jingle-1.mp3'],
+    winSounds: ['win.mp3'],
     
     init: function() {
         // Create background music player audio element
@@ -886,6 +905,7 @@ function Coin(cell, id) {
         
         GAME.renderStatic();
         GAME.score++;
+        GAME.levelScore++;
         GAME.checkScore();
     };
 }
