@@ -36,6 +36,8 @@ var GAME = GAME || {
     enemiesMap: [],
     coinsMap: [],
     wallsMap: [],
+    totalCoins: 150,
+    maxDiscount: 20,
     
     setDefaults: function () {
         this.levelScore = 0;
@@ -246,7 +248,7 @@ var GAME = GAME || {
     },
     
     onWin: function() {
-        GAME.stop("ДА!!!!! Всё позади, ваша скидка 10"+ "%.", "#0c3");
+        GAME.stop("ДА!!!!! Всё позади, ваша скидка "+ Math.floor(GAME.score / GAME.totalCoins * GAME.maxDiscount) +"%.", "#0c3");
         SOUND.musicPlayer.pause();
         SOUND.onEvent("win");
         clearTimeout(GAME.nextLevelTimeout);
