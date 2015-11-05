@@ -615,11 +615,6 @@ var Item = createClass({
                         case "wall" :
                             this.canMove = false;
                             break
-                            
-                        case "enemy" :
-                            if (this.id !== GAME.allObjects[i].id)
-                                this.canMove = false;
-                            break
                     }
                 }
             }
@@ -745,8 +740,8 @@ var Item = createClass({
 var Enemy = createClass({
     extend: Item,
 
-    construct: function(cell) {
-        Item.call(this, cell); // Parent constructor call
+    construct: function(cell, id) {
+        Item.call(this, cell, id); // Parent constructor call
         this.type = 'enemy';
         this.step = GAME.enemySpeed;
         this.img = {
