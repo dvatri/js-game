@@ -11,6 +11,7 @@
     </head>
     <body onload="GAME.init()">
         <div id="gameField">
+            <canvas id="info"></canvas>
             <canvas id="foreground"></canvas>
             <canvas id="items"></canvas>
             <canvas id="background"></canvas>

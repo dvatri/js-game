@@ -28,7 +28,6 @@ var GAME = GAME || {
     randomMovementQueue: 2, // Movement queue size
     timeLeft: 45, // Time limit in seconds
     imgPath: 'img/',
-    hudColor: '#500',
     hudHeight: 3, // Height bottom HUD area in cells
     directions: ['left', 'right', 'up', 'down'],
     map: null,
@@ -123,8 +122,13 @@ var GAME = GAME || {
         
         this.frontCanvas = document.getElementById("foreground");
         this.frontCanvas.width = this.cellsX * this.cellSize;
-        this.frontCanvas.height = (this.cellsY + this.hudHeight)* this.cellSize;
+        this.frontCanvas.height = this.cellsY * this.cellSize;
         this.frontContext = this.frontCanvas.getContext("2d");
+        
+        this.hudCanvas = document.getElementById("info");
+        this.hudCanvas.width = this.cellsX * this.cellSize;
+        this.hudCanvas.height = this.hudHeight * this.cellSize + 10; // Ten pixels overlay
+        this.hudContext = this.hudCanvas.getContext("2d");
         
         this.initStageObjects();
 
@@ -195,6 +199,8 @@ var GAME = GAME || {
         };
         
         this.renderStatic();
+        
+        this.drawInfo();
     },
 
     updateStage: function () {
@@ -202,39 +208,35 @@ var GAME = GAME || {
         GAME.clearCanvas();
         GAME.updateTime();
         GAME.updateStageObjects();
-        GAME.drawInfo();
     },
 
     drawInfo: function() {
         
-        var hudY = this.frontCanvas.height - this.hudHeight*GAME.cellSize;
+        this.hudContext.clearRect(0, 0, this.hudCanvas.width, this.hudCanvas.height);
         
-        this.frontContext.textBaseline = "middle";
-        this.frontContext.textAlign = "center";
+        this.hudContext.textBaseline = "middle";
+        this.hudContext.textAlign = "center";
         
-        this.frontContext.fillStyle=this.hudColor;
-        this.frontContext.fillRect(0, hudY, this.frontCanvas.width, this.frontCanvas.height);
-        
-        this.frontContext.font="30px Impact";
-        this.frontContext.fillStyle="lawngreen";
-        this.frontContext.fillText(
+        this.hudContext.font="30px Impact";
+        this.hudContext.fillStyle="lawngreen";
+        this.hudContext.fillText(
                 'Собрано: ' + this.score,
-                this.canvas.width - 170,
-                this.frontCanvas.height - 42,
+                this.hudCanvas.width - 170,
+                this.hudCanvas.height - 42,
                 200); // Max width
         
-        this.frontContext.fillStyle="orange";
-        this.frontContext.fillText(
+        this.hudContext.fillStyle="orange";
+        this.hudContext.fillText(
                 this.timeLeft + ' сек.',
                 350,
-                this.frontCanvas.height - 42,
+                this.hudCanvas.height - 42,
                 200);
                 
-        this.frontContext.fillStyle="gray";
-        this.frontContext.fillText(
+        this.hudContext.fillStyle="gray";
+        this.hudContext.fillText(
                 'Уровень ' + this.level,
                 100,
-                this.frontCanvas.height - 42,
+                this.hudCanvas.height - 42,
                 200);
     },
     
@@ -242,6 +244,7 @@ var GAME = GAME || {
         this.objects = [];
         this.staticObjects = [];
         this.darkness = false;
+        this.frontContext.textAlign = "center";
         this.frontContext.fillStyle=color;
         this.frontContext.fillRect(0, 0, GAME.cellSize*GAME.cellsX, GAME.cellSize*GAME.cellsY);
         this.frontContext.font = "40px Impact";
@@ -316,6 +319,7 @@ var GAME = GAME || {
     updateTime: function() {
         if (this.t % 1000 === 0) {
             this.timeLeft--;
+            this.drawInfo();
         }
         
         if (this.timeLeft === 0) {
@@ -362,7 +366,7 @@ var GAME = GAME || {
         );
     },
     
-    renderRandomImage: function(image, x, y, context) {
+    renderRandomImage: function(image, x, y, context, width, height) {
         
         var sx = image.current * GAME.cellSize;
         
@@ -370,12 +374,12 @@ var GAME = GAME || {
             image.source,
             sx,
             0,
-            GAME.cellSize,
-            GAME.cellSize,
+            (width ? width : GAME.cellSize),
+            (height ? height : GAME.cellSize),
             x,
             y,
-            GAME.cellSize,
-            GAME.cellSize
+            (width ? width : GAME.cellSize),
+            (height ? height : GAME.cellSize)
         );
     },
     
@@ -1010,6 +1014,7 @@ function Coin(cell, id) {
         GAME.renderStatic();
         GAME.score++;
         GAME.levelScore++;
+        GAME.drawInfo();
         GAME.checkScore();
     };
 }
