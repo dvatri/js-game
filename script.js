@@ -228,7 +228,7 @@ var GAME = GAME || {
                 this.hudCanvas.height - 42,
                 200); // Max width
                 
-        this.hudContext.fillStyle="green";
+        this.hudContext.fillStyle="red";
         this.hudContext.fillText(
                 this.hero.health,
                 400,
@@ -973,6 +973,7 @@ var Hero = createClass({
             return;
         
         SOUND.onEvent('damage');
+        this.shine(200, "rgba(255,0,0,.5)");
         
         var self = this;
         this.damageTimeout = setTimeout(
