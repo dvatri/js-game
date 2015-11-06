@@ -37,6 +37,7 @@ var GAME = GAME || {
     wallsMap: [],
     totalCoins: 150,
     maxDiscount: 20,
+    singleDamage: 20, // Percentage of single damage
     
     setDefaults: function () {
         this.t = 0;
@@ -187,6 +188,7 @@ var GAME = GAME || {
         };
         heroImg.src = this.imgPath + 'hero.png';
         this.hero.shine(1000);
+        this.hero.health = 100;
 
         // Init enemies
         var enemyImg = new Image();
@@ -225,20 +227,27 @@ var GAME = GAME || {
                 this.hudCanvas.width - 170,
                 this.hudCanvas.height - 42,
                 200); // Max width
+                
+        this.hudContext.fillStyle="green";
+        this.hudContext.fillText(
+                this.hero.health,
+                400,
+                this.hudCanvas.height - 42,
+                100); // Max width
         
         this.hudContext.fillStyle="orange";
         this.hudContext.fillText(
                 this.timeLeft + ' сек.',
-                350,
+                275,
                 this.hudCanvas.height - 42,
-                200);
+                125);
                 
         this.hudContext.fillStyle="gray";
         this.hudContext.fillText(
                 'Уровень ' + this.level,
                 100,
                 this.hudCanvas.height - 42,
-                200);
+                175);
     },
     
     stop: function(text, color) {
@@ -507,6 +516,7 @@ var SOUND = SOUND || {
     doneSounds: ['win.mp3'],
     timeIsUpSounds: ['jingle-1.mp3'],
     winSounds: ['total-win.mp3'],
+    damageSounds: ['damage.mp3'],
     
     init: function() {
         
@@ -610,8 +620,7 @@ var Item = createClass({
                             break;
 
                         case "enemy" :
-                            GAME.onDeath();
-                            return;
+                            this.onDamage();
                             break
 
                         case "wall" :
@@ -627,8 +636,7 @@ var Item = createClass({
                 } else if (this.type === "enemy") {
                     switch(GAME.allObjects[i].type) {                     
                         case "hero" :
-                            GAME.onDeath();
-                            return;
+                            GAME.allObjects[i].onDamage();
                             break
 
                         case "wall" :
@@ -957,6 +965,29 @@ var Hero = createClass({
         GAME.context.stroke();
 
         this.shineTime += GAME.frameInterval;
+    },
+    
+    onDamage: function() {
+        
+        if (this.damageTimeout)
+            return;
+        
+        SOUND.onEvent('damage');
+        
+        var self = this;
+        this.damageTimeout = setTimeout(
+                function() {
+                    clearTimeout(self.damageTimeout);
+                    self.damageTimeout = null;
+                },
+                3000
+        );
+        this.health -= GAME.singleDamage;
+        
+        GAME.drawInfo();
+        
+        if (this.health <= 0)
+            GAME.onDeath();
     }
 });
 
