@@ -43,6 +43,7 @@ var GAME = GAME || {
         this.levelScore = 0;
         this.timeLeft = 45;
         this.darkness = false; // Should we use gradient foreground layer
+        this.fog = false;
         this.shadowColor = '#333';
         this.wallColor = '#555';
         this.wallFile = 'wall.png';
@@ -244,6 +245,7 @@ var GAME = GAME || {
         this.objects = [];
         this.staticObjects = [];
         this.darkness = false;
+        this.fog = false;
         this.frontContext.textAlign = "center";
         this.frontContext.fillStyle=color;
         this.frontContext.fillRect(0, 0, GAME.cellSize*GAME.cellsX, GAME.cellSize*GAME.cellsY);
@@ -453,6 +455,23 @@ var GAME = GAME || {
             
             ctx.fill();
         }
+    },
+    
+    drawFog: function(x, y, diameter, threshold, startColor, endColor, context) {
+        var grd = context
+            .createRadialGradient(
+                x,
+                y,
+                GAME.cellSize*GAME.cellsX,
+                x,
+                y,
+                diameter
+            );
+        grd.addColorStop(0, endColor);
+        grd.addColorStop(threshold, endColor);
+        grd.addColorStop(1, startColor);
+        context.fillStyle = grd;
+        context.fillRect(0,0,GAME.canvas.width,GAME.canvas.height);
     },
     
     getMap: function(handleData) {
@@ -903,21 +922,9 @@ var Hero = createClass({
             
         if (GAME.darkness) {
             GAME.drawShadows();
-            var grd = GAME
-                    .frontContext
-                    .createRadialGradient(
-                        this.x,
-                        this.y,
-                        GAME.cellSize*GAME.cellsX,
-                        this.x,
-                        this.y,
-                        100
-                    );
-            grd.addColorStop(0, 'black');
-            grd.addColorStop(.8, 'black');
-            grd.addColorStop(1, 'rgba(0,0,0,.01)');
-            GAME.frontContext.fillStyle = grd;
-            GAME.frontContext.fillRect(0,0,GAME.canvas.width,GAME.canvas.height);
+            GAME.drawFog(this.x, this.y, 100, .8, 'rgba(0,0,0,.01)', 'black', GAME.frontContext);
+        } else if (GAME.fog) {
+            GAME.drawFog(this.x+GAME.cellSize/2, this.y+GAME.cellSize/2, 150, .6, 'rgba(200,200,200,.01)', 'rgba(200,200,200,.8)', GAME.frontContext);
         }
     },
     
