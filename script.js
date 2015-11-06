@@ -221,28 +221,28 @@ var GAME = GAME || {
         this.hudContext.textAlign = "center";
         
         this.hudContext.font="30px Impact";
-        this.hudContext.fillStyle="lawngreen";
+        this.hudContext.fillStyle="rgba(100,255,50,.5)";
         this.hudContext.fillText(
-                'Собрано: ' + this.score,
+                "\u266C  " + this.score + "  ("+GAME.coinsMap.length+")",
                 this.hudCanvas.width - 170,
                 this.hudCanvas.height - 42,
                 200); // Max width
                 
-        this.hudContext.fillStyle="red";
+        this.hudContext.fillStyle="rgba(255,0,0,.4)";
         this.hudContext.fillText(
-                this.hero.health,
+                "\u2764  " + this.hero.health,
                 400,
                 this.hudCanvas.height - 42,
                 100); // Max width
         
-        this.hudContext.fillStyle="orange";
+        this.hudContext.fillStyle="rgba(255,200,0,.5)";
         this.hudContext.fillText(
-                this.timeLeft + ' сек.',
+                "\u25F7  " + this.timeLeft,
                 275,
                 this.hudCanvas.height - 42,
                 125);
                 
-        this.hudContext.fillStyle="gray";
+        this.hudContext.fillStyle="rgba(255,255,255,.3)";
         this.hudContext.fillText(
                 'Уровень ' + this.level,
                 100,
