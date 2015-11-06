@@ -1,5 +1,5 @@
 body {
-    background: black;
+    background: black url("img/page-background.jpg") repeat;
     color: darkslategrey;
 }
 

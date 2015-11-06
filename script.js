@@ -223,7 +223,7 @@ var GAME = GAME || {
         this.hudContext.font="30px Impact";
         this.hudContext.fillStyle="rgba(100,255,50,.5)";
         this.hudContext.fillText(
-                "\u266C  " + this.score + "  ("+GAME.coinsMap.length+")",
+                "\u266C  " + this.score,
                 this.hudCanvas.width - 170,
                 this.hudCanvas.height - 42,
                 200); // Max width
