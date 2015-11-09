@@ -516,7 +516,7 @@ var SOUND = SOUND || {
     doneSounds: ['win.mp3'],
     timeIsUpSounds: ['jingle-1.mp3'],
     winSounds: ['total-win.mp3'],
-    damageSounds: ['damage.mp3'],
+    damageSounds: ['damage-1.mp3', 'damage-2.mp3', 'damage-3.mp3'],
     
     init: function() {
         
