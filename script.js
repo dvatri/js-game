@@ -35,12 +35,15 @@ var GAME = GAME || {
     enemiesMap: [],
     coinsMap: [],
     wallsMap: [],
-    totalCoins: 150,
+    totalCoins: 88,
     maxDiscount: 20,
     singleDamage: 20, // Percentage of single damage
+    loadPool: [],
     
     setDefaults: function () {
+        clearInterval(this.loop);
         this.t = 0;
+        this.map = null;
         this.levelScore = 0;
         this.timeLeft = 45;
         this.darkness = false; // Should we use gradient foreground layer
@@ -49,10 +52,27 @@ var GAME = GAME || {
         this.wallColor = '#555';
         this.wallFile = 'wall.png';
         this.bgFile = 'floor.png';
+        this.loadPool = [];
+        this.objects = [];
+        this.staticObjects = [];
+    },
+    
+    runTask: function () {
+        if (this.loadPool.length > 0) {
+            if (this.startLoadPoolLenght === undefined) {
+                this.startLoadPoolLenght = this.loadPool.length;
+            }
+            
+            //console.log((1 - (this.loadPool.length / this.startLoadPoolLenght)) * 100 + '%');
+            
+            this.loadPool.shift().call(this);
+        } else {
+            //console.log(100+'%');
+            this.loop = setInterval(this.updateStage, this.frameInterval);
+        }
     },
 
     init: function (data) {
-        
         this.setDefaults();
         
         if (typeof(data) === 'object') {
@@ -68,73 +88,90 @@ var GAME = GAME || {
             return;
         }
         
-        for (var property in this.map) {
-            if (this.map.hasOwnProperty(property) && this.hasOwnProperty(property)) {
-                this[property] = this.map[property];
+        this.loadPool.push(function(){
+            for (var property in this.map) {
+                if (this.map.hasOwnProperty(property) && this.hasOwnProperty(property)) {
+                    this[property] = this.map[property];
+                }
             }
-        }
+            this.runTask();
+        });
         
-        window.onkeydown = function(e){
-            return GAME.hero.keyDown(e.keyCode);
-        };
-        window.onkeyup = function(e){
-            GAME.hero.keyUp(e.keyCode);
-        };
-        
-        
-        var field = document.getElementById("gameField");
-        field.style.width = this.cellsX * this.cellSize + "px";
-        field.style.height = (this.cellsY + this.hudHeight) * this.cellSize + "px";
-                
-        // Set background image
-        field.style.background = 'url("'+this.imgPath+this.bgFile+'") repeat';
-        
-        // Click event listener
-        field.onmousedown = function(e){
-            GAME.hero.clicked(
-                    e.clientX - Math.floor(GAME.canvas.getBoundingClientRect().left),
-                    e.clientY - Math.floor(GAME.canvas.getBoundingClientRect().top)
-            );
-        };
-        field.onmouseup = function(){
-            GAME.hero.unclicked();
-        };
-        
-        // Touch event listener
-        field.ontouchstart = function(e){
-            GAME.hero.clicked(
-                    e.touches[0].pageX - Math.floor(GAME.canvas.getBoundingClientRect().left),
-                    e.touches[0].pageY - Math.floor(GAME.canvas.getBoundingClientRect().top)
-            );
-        };
-        field.ontouchend = function(){GAME.hero.unclicked;};
-        
-        // Init sounds
-        SOUND.init();
-        
-        this.staticCanvas = document.getElementById("background");
-        this.staticCanvas.width = this.cellsX * this.cellSize;
-        this.staticCanvas.height = this.cellsY * this.cellSize;
-        this.staticContext = this.staticCanvas.getContext("2d");
-        
-        this.canvas = document.getElementById("items");
-        this.canvas.width = this.cellsX * this.cellSize;
-        this.canvas.height = this.cellsY * this.cellSize;
-        this.context = this.canvas.getContext("2d");
-        
-        this.frontCanvas = document.getElementById("foreground");
-        this.frontCanvas.width = this.cellsX * this.cellSize;
-        this.frontCanvas.height = this.cellsY * this.cellSize;
-        this.frontContext = this.frontCanvas.getContext("2d");
-        
-        this.hudCanvas = document.getElementById("info");
-        this.hudCanvas.width = this.cellsX * this.cellSize;
-        this.hudCanvas.height = this.hudHeight * this.cellSize + 10; // Ten pixels overlay
-        this.hudContext = this.hudCanvas.getContext("2d");
-        
-        this.initStageObjects();
+        this.loadPool.push(function(){
+            var field = document.getElementById("gameField");
+            field.style.width = this.cellsX * this.cellSize + "px";
+            field.style.height = (this.cellsY + this.hudHeight) * this.cellSize + "px";
 
-        this.loop = setInterval(this.updateStage, this.frameInterval);
+            // Set background image
+            field.style.background = 'url("'+this.imgPath+this.bgFile+'") repeat';
+            
+            // Click event listener
+            field.onmousedown = function(e){
+                GAME.hero.clicked(
+                        e.clientX - Math.floor(GAME.canvas.getBoundingClientRect().left),
+                        e.clientY - Math.floor(GAME.canvas.getBoundingClientRect().top)
+                );
+            };
+            field.onmouseup = function(){
+                GAME.hero.unclicked();
+            };
+            
+            // Touch event listener
+            field.ontouchstart = function(e){
+                GAME.hero.clicked(
+                        e.touches[0].pageX - Math.floor(GAME.canvas.getBoundingClientRect().left),
+                        e.touches[0].pageY - Math.floor(GAME.canvas.getBoundingClientRect().top)
+                );
+            };
+            field.ontouchend = function(){GAME.hero.unclicked;};
+            
+            // Keyboard event listener
+            window.onkeydown = function(e){
+                return GAME.hero.keyDown(e.keyCode);
+            };
+            window.onkeyup = function(e){
+                GAME.hero.keyUp(e.keyCode);
+            };
+            
+            this.runTask();
+        });
+        
+        this.loadPool.push(function(){     
+            // Init sounds
+            SOUND.init();
+            this.runTask();
+        });
+        
+        this.loadPool.push(function(){
+            this.staticCanvas = document.getElementById("background");
+            this.staticCanvas.width = this.cellsX * this.cellSize;
+            this.staticCanvas.height = this.cellsY * this.cellSize;
+            this.staticContext = this.staticCanvas.getContext("2d");
+
+            this.canvas = document.getElementById("items");
+            this.canvas.width = this.cellsX * this.cellSize;
+            this.canvas.height = this.cellsY * this.cellSize;
+            this.context = this.canvas.getContext("2d");
+
+            this.frontCanvas = document.getElementById("foreground");
+            this.frontCanvas.width = this.cellsX * this.cellSize;
+            this.frontCanvas.height = this.cellsY * this.cellSize;
+            this.frontContext = this.frontCanvas.getContext("2d");
+
+            this.hudCanvas = document.getElementById("info");
+            this.hudCanvas.width = this.cellsX * this.cellSize;
+            this.hudCanvas.height = this.hudHeight * this.cellSize + 10; // Ten pixels overlay
+            this.hudContext = this.hudCanvas.getContext("2d");
+            
+            this.runTask();
+        });
+        
+        this.loadPool.push(function(){
+            this.initStageObjects();
+            this.runTask();
+        });
+        
+        this.runTask();
     },
 
     initStageObjects: function () {
@@ -267,13 +304,19 @@ var GAME = GAME || {
     },
     
     nextLevel: function() {
+        
+        if (!GAME.map) {
+            return;
+        }
+        
         if (GAME.map.last === true) {
             GAME.onWin();
             return;
         }
+        
+        clearTimeout(GAME.nextLevelTimeout);
             
         GAME.level++;
-        GAME.map = null;
         GAME.init();
     },
     
