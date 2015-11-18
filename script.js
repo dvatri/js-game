@@ -166,81 +166,94 @@ var GAME = GAME || {
             this.runTask();
         });
         
-        this.loadPool.push(function(){
-            this.initStageObjects();
-            this.runTask();
-        });
+        this.initStageObjects();
         
         this.runTask();
     },
 
     initStageObjects: function () {
         
-        if (this.darkness) {
-            this.wallColor = this.shadowColor;
-            this.wallFile = null;
-        }
+        this.loadPool.push(function() {
+            if (this.darkness) {
+                this.wallColor = this.shadowColor;
+                this.wallFile = null;
+            }
+            this.runTask();
+        });
         
-        // Init walls
-        if (this.wallFile) {
-            var wallImg = new Image();
-            wallImg.src = this.imgPath + this.wallFile;
-            wallImg.onload = function () {
-                for (var i=0; i < GAME.wallsMap.length; i++) {
-                    var wall = new Wall(GAME.wallsMap[i]);
-                    wall.img.source = wallImg;
-                    GAME.staticObjects.push(wall);
+        this.loadPool.push(function() {
+            // Init walls
+            if (this.wallFile) {
+                var wallImg = new Image();
+                wallImg.src = this.imgPath + this.wallFile;
+                wallImg.onload = function () {
+                    for (var i=0; i < GAME.wallsMap.length; i++) {
+                        var wall = new Wall(GAME.wallsMap[i]);
+                        wall.img.source = wallImg;
+                        GAME.staticObjects.push(wall);
+                    }
+                    GAME.renderStatic();
+                    GAME.runTask();
+                };
+            } else {
+                for (var i=0; i < this.wallsMap.length; i++) {
+                    this.staticObjects.push(new Wall(this.wallsMap[i]));
                 }
-                
+                this.runTask();
+            }
+        });
+
+        this.loadPool.push(function() {
+            // Init coins
+            var coinsImg = new Image();
+            coinsImg.src = this.imgPath + 'coins.png';
+            coinsImg.onload = function () {
+                var variants = Math.floor(coinsImg.width / GAME.cellSize);
+
+                for (var i=0; i < GAME.coinsMap.length; i++) {
+                    var coin = new Coin(GAME.coinsMap[i], i);
+                    coin.img.source = coinsImg;
+                    coin.img.current = Math.floor(Math.random() * variants);
+                    GAME.staticObjects.push(coin);
+                }
                 GAME.renderStatic();
+                GAME.runTask();
             };
-        } else {
-            for (var i=0; i < this.wallsMap.length; i++) {
-                this.staticObjects.push(new Wall(this.wallsMap[i]));
-            }
-        }
+        });
 
-        // Init coins
-        var coinsImg = new Image();
-        coinsImg.src = this.imgPath + 'coins.png';
-        coinsImg.onload = function () {
-            var variants = Math.floor(coinsImg.width / GAME.cellSize);
-            
-            for (var i=0; i < GAME.coinsMap.length; i++) {
-                var coin = new Coin(GAME.coinsMap[i], i);
-                coin.img.source = coinsImg;
-                coin.img.current = Math.floor(Math.random() * variants);
-                GAME.staticObjects.push(coin);
-            }
-            
-            GAME.renderStatic();
-        };
+        this.loadPool.push(function() {
+            // Init hero
+            this.hero = new Hero(this.heroMap[0], 0);
+            this.objects.push(this.hero);
+            var heroImg = new Image();
+            heroImg.onload = function () {
+                GAME.hero.img.source = heroImg;
+                GAME.runTask();
+            };
+            heroImg.src = this.imgPath + 'hero.png';
+            this.hero.shine(1000);
+            this.hero.health = 100;
+        });
 
-        // Init hero
-        this.hero = new Hero(this.heroMap[0], 0);
-        this.objects.push(this.hero);
-        var heroImg = new Image();
-        heroImg.onload = function () {
-            GAME.hero.img.source = heroImg;
-        };
-        heroImg.src = this.imgPath + 'hero.png';
-        this.hero.shine(1000);
-        this.hero.health = 100;
-
-        // Init enemies
-        var enemyImg = new Image();
-        enemyImg.src = this.imgPath + 'enemy.png';
-        enemyImg.onload = function () {
-            for (var i=0; i < GAME.enemiesMap.length; i++) {
-                var enemy = new Enemy(GAME.enemiesMap[i], i);
-                enemy.img.source = enemyImg;
-                GAME.objects.push(enemy);
-            }
-        };
+        this.loadPool.push(function() {
+            // Init enemies
+            var enemyImg = new Image();
+            enemyImg.src = this.imgPath + 'enemy.png';
+            enemyImg.onload = function () {
+                for (var i=0; i < GAME.enemiesMap.length; i++) {
+                    var enemy = new Enemy(GAME.enemiesMap[i], i);
+                    enemy.img.source = enemyImg;
+                    GAME.objects.push(enemy);
+                }
+                GAME.runTask();
+            };
+        });
         
-        this.renderStatic();
-        
-        this.drawInfo();
+        this.loadPool.push(function() {
+            this.renderStatic();
+            this.drawInfo();
+            this.runTask();
+        });
     },
 
     updateStage: function () {
