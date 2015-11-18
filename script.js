@@ -62,12 +62,12 @@ var GAME = GAME || {
             if (this.startLoadPoolLenght === undefined) {
                 this.startLoadPoolLenght = this.loadPool.length;
             }
-            
-            //console.log((1 - (this.loadPool.length / this.startLoadPoolLenght)) * 100 + '%');
+            $("#loaded").show().text(Math.round((1 - (this.loadPool.length / this.startLoadPoolLenght)) * 100) + '%');
             
             this.loadPool.shift().call(this);
         } else {
-            //console.log(100+'%');
+            $("#loaded").text(100 + '%').fadeOut();
+            
             this.loop = setInterval(this.updateStage, this.frameInterval);
         }
     },
