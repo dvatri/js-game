@@ -38,7 +38,7 @@ var GAME = GAME || {
     totalCoins: 88,
     maxDiscount: 20,
     singleDamage: 20, // Percentage of single damage
-    loadPool: [],
+    loadQuery: [],
     
     setDefaults: function () {
         clearInterval(this.loop);
@@ -52,19 +52,19 @@ var GAME = GAME || {
         this.wallColor = '#555';
         this.wallFile = 'wall.png';
         this.bgFile = 'floor.png';
-        this.loadPool = [];
+        this.loadQuery = [];
         this.objects = [];
         this.staticObjects = [];
     },
     
-    runTask: function () {
-        if (this.loadPool.length > 0) {
-            if (this.startLoadPoolLenght === undefined) {
-                this.startLoadPoolLenght = this.loadPool.length;
+    nextTask: function () {
+        if (this.loadQuery.length > 0) {
+            if (this.totalLoadQueryLenght === undefined) {
+                this.totalLoadQueryLenght = this.loadQuery.length;
             }
-            $("#loaded").show().text(Math.round((1 - (this.loadPool.length / this.startLoadPoolLenght)) * 100) + '%');
+            $("#loaded").show().text(Math.round((1 - (this.loadQuery.length / this.totalLoadQueryLenght)) * 100) + '%');
             
-            this.loadPool.shift().call(this);
+            this.loadQuery.shift().call(this);
         } else {
             $("#loaded").text(100 + '%').fadeOut();
             
@@ -88,16 +88,25 @@ var GAME = GAME || {
             return;
         }
         
-        this.loadPool.push(function(){
+        this.loadQuery.push(function(){
             for (var property in this.map) {
                 if (this.map.hasOwnProperty(property) && this.hasOwnProperty(property)) {
                     this[property] = this.map[property];
                 }
             }
-            this.runTask();
+            this.nextTask();
         });
         
-        this.loadPool.push(function(){
+        // Preload background image
+        this.loadQuery.push(function(){
+            var bgImg = new Image();
+            bgImg.src = this.imgPath+this.bgFile;
+            bgImg.onload = function () {
+                GAME.nextTask();
+            };
+        });
+        
+        this.loadQuery.push(function(){
             var field = document.getElementById("gameField");
             field.style.width = this.cellsX * this.cellSize + "px";
             field.style.height = (this.cellsY + this.hudHeight) * this.cellSize + "px";
@@ -133,16 +142,13 @@ var GAME = GAME || {
                 GAME.hero.keyUp(e.keyCode);
             };
             
-            this.runTask();
+            this.nextTask();
         });
         
-        this.loadPool.push(function(){     
-            // Init sounds
-            SOUND.init();
-            this.runTask();
-        });
+        // Init sounds
+        SOUND.init();
         
-        this.loadPool.push(function(){
+        this.loadQuery.push(function(){
             this.staticCanvas = document.getElementById("background");
             this.staticCanvas.width = this.cellsX * this.cellSize;
             this.staticCanvas.height = this.cellsY * this.cellSize;
@@ -163,25 +169,25 @@ var GAME = GAME || {
             this.hudCanvas.height = this.hudHeight * this.cellSize + 10; // Ten pixels overlay
             this.hudContext = this.hudCanvas.getContext("2d");
             
-            this.runTask();
+            this.nextTask();
         });
         
         this.initStageObjects();
         
-        this.runTask();
+        this.nextTask();
     },
 
     initStageObjects: function () {
         
-        this.loadPool.push(function() {
+        this.loadQuery.push(function() {
             if (this.darkness) {
                 this.wallColor = this.shadowColor;
                 this.wallFile = null;
             }
-            this.runTask();
+            this.nextTask();
         });
         
-        this.loadPool.push(function() {
+        this.loadQuery.push(function() {
             // Init walls
             if (this.wallFile) {
                 var wallImg = new Image();
@@ -193,17 +199,17 @@ var GAME = GAME || {
                         GAME.staticObjects.push(wall);
                     }
                     GAME.renderStatic();
-                    GAME.runTask();
+                    GAME.nextTask();
                 };
             } else {
                 for (var i=0; i < this.wallsMap.length; i++) {
                     this.staticObjects.push(new Wall(this.wallsMap[i]));
                 }
-                this.runTask();
+                this.nextTask();
             }
         });
 
-        this.loadPool.push(function() {
+        this.loadQuery.push(function() {
             // Init coins
             var coinsImg = new Image();
             coinsImg.src = this.imgPath + 'coins.png';
@@ -217,25 +223,25 @@ var GAME = GAME || {
                     GAME.staticObjects.push(coin);
                 }
                 GAME.renderStatic();
-                GAME.runTask();
+                GAME.nextTask();
             };
         });
 
-        this.loadPool.push(function() {
+        this.loadQuery.push(function() {
             // Init hero
             this.hero = new Hero(this.heroMap[0], 0);
             this.objects.push(this.hero);
             var heroImg = new Image();
             heroImg.onload = function () {
                 GAME.hero.img.source = heroImg;
-                GAME.runTask();
+                GAME.nextTask();
             };
             heroImg.src = this.imgPath + 'hero.png';
             this.hero.shine(1000);
             this.hero.health = 100;
         });
 
-        this.loadPool.push(function() {
+        this.loadQuery.push(function() {
             // Init enemies
             var enemyImg = new Image();
             enemyImg.src = this.imgPath + 'enemy.png';
@@ -245,14 +251,14 @@ var GAME = GAME || {
                     enemy.img.source = enemyImg;
                     GAME.objects.push(enemy);
                 }
-                GAME.runTask();
+                GAME.nextTask();
             };
         });
         
-        this.loadPool.push(function() {
+        this.loadQuery.push(function() {
             this.renderStatic();
             this.drawInfo();
-            this.runTask();
+            this.nextTask();
         });
     },
 
@@ -586,6 +592,8 @@ var SOUND = SOUND || {
             this.musicPlayer.onended = function() {
                 SOUND.nextMusic();
             };
+            
+            this.preloadSounds();
         }
         
         SOUND.nextMusic();
@@ -635,6 +643,36 @@ var SOUND = SOUND || {
             this.fxPlayer.setAttribute('src', this.soundsFolder + sound);
             this.fxPlayer.play();
         }
+    },
+    
+    preloadSounds: function() {
+        var sounds = [].concat(
+            SOUND.musicFiles,
+            SOUND.deathSounds,
+            SOUND.coinSounds,
+            SOUND.doneSounds,
+            SOUND.timeIsUpSounds,
+            SOUND.winSounds,
+            SOUND.damageSounds
+        );
+
+        this.preloader = new Audio();
+
+        for (var i=0; i < sounds.length; i++) {
+            
+            GAME.loadQuery.push(
+                    this.getCallback(sounds[i])
+            );
+        }
+    },
+    
+    getCallback: function(sound) {
+        return function() {
+            SOUND.preloader.src = SOUND.soundsFolder + sound;
+            SOUND.preloader.oncanplaythrough = function() {
+                GAME.nextTask();
+            };
+        };
     }
 };
 
