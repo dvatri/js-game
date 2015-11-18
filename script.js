@@ -592,8 +592,6 @@ var SOUND = SOUND || {
             this.musicPlayer.onended = function() {
                 SOUND.nextMusic();
             };
-            
-            this.preloadSounds();
         }
         
         SOUND.nextMusic();
@@ -643,36 +641,6 @@ var SOUND = SOUND || {
             this.fxPlayer.setAttribute('src', this.soundsFolder + sound);
             this.fxPlayer.play();
         }
-    },
-    
-    preloadSounds: function() {
-        var sounds = [].concat(
-            SOUND.musicFiles,
-            SOUND.deathSounds,
-            SOUND.coinSounds,
-            SOUND.doneSounds,
-            SOUND.timeIsUpSounds,
-            SOUND.winSounds,
-            SOUND.damageSounds
-        );
-
-        this.preloader = new Audio();
-
-        for (var i=0; i < sounds.length; i++) {
-            
-            GAME.loadQuery.push(
-                    this.getCallback(sounds[i])
-            );
-        }
-    },
-    
-    getCallback: function(sound) {
-        return function() {
-            SOUND.preloader.src = SOUND.soundsFolder + sound;
-            SOUND.preloader.oncanplaythrough = function() {
-                GAME.nextTask();
-            };
-        };
     }
 };
 
