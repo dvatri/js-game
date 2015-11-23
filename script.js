@@ -47,6 +47,7 @@ var GAME = GAME || {
         this.levelScore = 0;
         this.timeLeft = 45;
         this.darkness = false; // Should we use gradient foreground layer
+        this.ice = false; // Should hero skate
         this.fog = false;
         this.shadowColor = '#333';
         this.wallColor = '#555';
@@ -239,6 +240,12 @@ var GAME = GAME || {
             heroImg.src = this.imgPath + 'hero.png';
             this.hero.shine(1000);
             this.hero.health = 100;
+            
+            if (this.ice) {
+                this.hero.stepEndEvents.push(function(){
+                    GAME.hero.slide();
+                });
+            }
         });
 
         this.loadQuery.push(function() {
@@ -1051,6 +1058,23 @@ var Hero = createClass({
         
         if (this.health <= 0)
             GAME.onDeath();
+    },
+    
+    slide: function() {
+        switch (this.direction) {
+            case "left" :
+                this.vx = -GAME.cellSize;
+                break;
+            case "right" :
+                this.vx = GAME.cellSize;
+                break;
+            case "up" :
+                this.vy = -GAME.cellSize;
+                break;
+            case "down" :
+                this.vy = GAME.cellSize;
+                break;
+        }
     }
 });
 
