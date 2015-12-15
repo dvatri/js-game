@@ -13,6 +13,8 @@ var GAME = GAME || {
     staticContext: null,
     frontCanvas: null,
     frontContext: null,
+    fullCanvas: null,
+    fullContext: null,
     cellSize: 30, // Cell size in pixels
     animationSpeed: 6, // 1..cellSize, default 6
     enemySpeed: 2, // default 3
@@ -35,10 +37,15 @@ var GAME = GAME || {
     enemiesMap: [],
     coinsMap: [],
     wallsMap: [],
-    totalCoins: 88,
+    totalCoins: 92,
     maxDiscount: 20,
     singleDamage: 20, // Percentage of single damage
     loadQuery: [],
+    timeIsUp: {source: null, current: 0},
+    levelDone: {source: null, current: 0},
+    death: {source: null, current: 0},
+    intro: {source: null, current: 0},
+    outtro: {source: null, current: 0},
     
     setDefaults: function () {
         clearInterval(this.loop);
@@ -69,7 +76,12 @@ var GAME = GAME || {
         } else {
             $("#loaded").text(100 + '%').fadeOut();
             
-            this.loop = setInterval(this.updateStage, this.frameInterval);
+            if (this.level === 1) {
+                this.renderRandomImage(this.intro, 0, 0, this.fullContext, 730, 580);
+                setTimeout(function(){GAME.loop = setInterval(GAME.updateStage, GAME.frameInterval);}, 8000);
+            } else {   
+                this.loop = setInterval(this.updateStage, this.frameInterval);
+            }
         }
     },
 
@@ -164,6 +176,11 @@ var GAME = GAME || {
             this.frontCanvas.width = this.cellsX * this.cellSize;
             this.frontCanvas.height = this.cellsY * this.cellSize;
             this.frontContext = this.frontCanvas.getContext("2d");
+            
+            this.fullCanvas = document.getElementById("full-canvas");
+            this.fullCanvas.width = this.cellsX * this.cellSize;
+            this.fullCanvas.height = this.cellsY * this.cellSize + this.hudHeight * this.cellSize;
+            this.fullContext = this.fullCanvas.getContext("2d");
 
             this.hudCanvas = document.getElementById("info");
             this.hudCanvas.width = this.cellsX * this.cellSize;
@@ -262,6 +279,51 @@ var GAME = GAME || {
             };
         });
         
+        this.loadQuery.push(function(){
+            var img = new Image();
+            img.src = this.imgPath + 'time-is-up.png';
+            img.onload = function () {
+                GAME.timeIsUp.source = img;
+                GAME.nextTask();
+            };
+        });
+        
+        this.loadQuery.push(function(){
+            var img = new Image();
+            img.src = this.imgPath + 'level-done.png';
+            img.onload = function () {
+                GAME.levelDone.source = img;
+                GAME.nextTask();
+            };
+        });
+        
+        this.loadQuery.push(function(){
+            var img = new Image();
+            img.src = this.imgPath + 'death.png';
+            img.onload = function () {
+                GAME.death.source = img;
+                GAME.nextTask();
+            };
+        });
+        
+        this.loadQuery.push(function(){
+            var img = new Image();
+            img.src = this.imgPath + 'intro.png';
+            img.onload = function () {
+                GAME.intro.source = img;
+                GAME.nextTask();
+            };
+        });
+        
+        this.loadQuery.push(function(){
+            var img = new Image();
+            img.src = this.imgPath + 'outtro.png';
+            img.onload = function () {
+                GAME.outtro.source = img;
+                GAME.nextTask();
+            };
+        });
+        
         this.loadQuery.push(function() {
             this.renderStatic();
             this.drawInfo();
@@ -313,17 +375,20 @@ var GAME = GAME || {
                 175);
     },
     
-    stop: function(text, color) {
+    stop: function(text, color, file) {
+        
+        GAME.renderRandomImage(file, 0, 0, GAME.fullContext, 730, 580);
+        
         this.objects = [];
         this.staticObjects = [];
         this.darkness = false;
         this.fog = false;
-        this.frontContext.textAlign = "center";
-        this.frontContext.fillStyle=color;
-        this.frontContext.fillRect(0, 0, GAME.cellSize*GAME.cellsX, GAME.cellSize*GAME.cellsY);
-        this.frontContext.font = "40px Impact";
-        this.frontContext.fillStyle = "white";
-        this.frontContext.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
+        this.fullContext.textAlign = "center";
+        //this.frontContext.fillStyle=color;
+        //this.frontContext.fillRect(0, 0, GAME.cellSize*GAME.cellsX, GAME.cellSize*GAME.cellsY);
+        this.fullContext.font = "32px Impact";
+        this.fullContext.fillStyle = "white";
+        this.fullContext.fillText(text, this.canvas.width / 2, this.canvas.height / 2 + 200);
         
         clearInterval(this.loop);
         GAME.nextLevelTimeout = setTimeout(this.nextLevel, 5000);
@@ -347,16 +412,24 @@ var GAME = GAME || {
     },
     
     onDeath: function() {
-        GAME.stop("Поймали!", "red");
+        GAME.stop("", "red", GAME.death);
         SOUND.musicPlayer.pause();
         SOUND.onEvent("death");
     },
     
     onWin: function() {
-        GAME.stop("ДА!!!!! Всё позади, ваша скидка "+ Math.floor(GAME.score / GAME.totalCoins * GAME.maxDiscount) +"%.", "#0c3");
+        var discount = Math.floor(GAME.score / GAME.totalCoins * GAME.maxDiscount);
+        
+        if (discount > 20)
+            discount = 20;
+        
+        GAME.stop("ДА! Все зомби взорвались, а ваша скидка "+ discount  +"%.", "#0c3", GAME.outtro);
         SOUND.musicPlayer.pause();
         SOUND.onEvent("win");
         clearTimeout(GAME.nextLevelTimeout);
+        GAME.level = 0;
+        this.getMap(function(data){
+        });
     },
 
     updateStageObjects: function () {
@@ -382,6 +455,7 @@ var GAME = GAME || {
     clearCanvas: function () {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.frontContext.clearRect(0, 0, this.frontCanvas.width, this.frontCanvas.height);
+        this.fullContext.clearRect(0, 0, this.fullCanvas.width, this.fullCanvas.height);
     },
     
     findDistance: function(i1, i2) {
@@ -390,7 +464,7 @@ var GAME = GAME || {
     
     checkScore: function() {
         if (this.levelScore === this.coinsMap.length) {
-            this.stop("Все собрано!", "green");
+            this.stop("", "green", this.levelDone);
             SOUND.musicPlayer.pause();
             SOUND.onEvent("done");
         }
@@ -403,7 +477,7 @@ var GAME = GAME || {
         }
         
         if (this.timeLeft === 0) {
-            this.stop("Кончилось время!", "orange");
+            this.stop("", "orange", this.timeIsUp);
             SOUND.musicPlayer.pause();
             SOUND.onEvent("timeIsUp");
         }
@@ -556,7 +630,7 @@ var GAME = GAME || {
         $.ajax({
             type: "POST",
             url: "api.php",
-            data: {level: GAME.level},
+            data: {level: GAME.level, score: GAME.score},
             success: function(data){
                 handleData(JSON.parse(data));
             },
