@@ -23,6 +23,10 @@ canvas {
     z-index: 3;
 }
 
+#full-canvas {
+    z-index: 5;
+}
+
 #info {
     z-index: 4;
     background: url("img/info-panel.png") no-repeat bottom center;
