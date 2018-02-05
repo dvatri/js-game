@@ -1,6 +1,6 @@
 # Basic JS game engine
 
-Example: http://zonazvuka.ru/game
+Example: https://schavelev.ru/game
 
     editor/       Folder width level editor
     img/          Images folder
