@@ -1,7 +1,7 @@
 // http://www.w3schools.com/tags/ref_canvas.asp
 // http://www.sitepoint.com/html5-canvas-animation/
 // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
-
+var path = "/game/";
 var GAME = GAME || {
 
     // Settings
@@ -29,7 +29,7 @@ var GAME = GAME || {
     randomMovementDistance: 6, // Max number of cells to move randomly
     randomMovementQueue: 2, // Movement queue size
     timeLeft: 45, // Time limit in seconds
-    imgPath: 'img/',
+    imgPath: path + 'img/',
     hudHeight: 3, // Height bottom HUD area in cells
     directions: ['left', 'right', 'up', 'down'],
     map: null,
@@ -186,7 +186,7 @@ var GAME = GAME || {
             this.hudCanvas.width = this.cellsX * this.cellSize;
             this.hudCanvas.height = this.hudHeight * this.cellSize + 10; // Ten pixels overlay
             this.hudContext = this.hudCanvas.getContext("2d");
-            
+
             this.nextTask();
         });
         
@@ -629,7 +629,7 @@ var GAME = GAME || {
     getMap: function(handleData) {
         $.ajax({
             type: "POST",
-            url: "api.php",
+            url: path + "api.php",
             data: {level: GAME.level, score: GAME.score},
             success: function(data){
                 handleData(JSON.parse(data));
@@ -648,7 +648,7 @@ var GAME = GAME || {
 
 var SOUND = SOUND || {
     muted: false,
-    soundsFolder: 'sounds/',
+    soundsFolder: path + 'sounds/',
     musicNbr: 0,
     musicPlayer: null,
     fxPlayer: null,
